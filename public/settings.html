@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings — Crane Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--bg:linear-gradient(135deg,#2b5876,#4e4376);--card:rgba(255,255,255,0.06);--radius:16px}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,system-ui;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:18px;color:#fff}
+    .card{width:100%;max-width:760px;background:var(--card);padding:24px;border-radius:var(--radius);backdrop-filter:blur(6px)}
+    h1{margin:0}
+    .row{display:flex;gap:12px;align-items:center;margin-top:14px}
+    .btn{padding:10px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,#ff9a66,#ff5e62);color:#fff;cursor:pointer}
+    .muted{opacity:0.9}
+    .switch{padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.04);cursor:pointer}
+    input[type="checkbox"]{transform:scale(1.2);margin-right:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>⚙ Settings</h1>
+    <div class="muted">Customize sound, theme and reset local data.</div>
+
+    <div class="row">
+      <label class="switch"><input id="soundChk" type="checkbox"> Enable Sounds</label>
+      <button class="btn" id="toggleTheme">Toggle Light/Dark</button>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn" style="background:#e53935" id="resetBtn">Reset All Progress</button>
+      <a class="btn" href="index.html" style="background:transparent;border:1px solid rgba(255,255,255,0.08);color:#fff">Back Home</a>
+    </div>
+
+    <p style="margin-top:14px" class="muted">Resetting will clear leaderboard, stats, achievements and saved profile from this browser.</p>
+  </div>
+
+  <script>
+    // init
+    const soundChk = document.getElementById('soundChk');
+    soundChk.checked = JSON.parse(localStorage.getItem('soundOn') || 'true');
+
+    soundChk.addEventListener('change', ()=>{
+      localStorage.setItem('soundOn', JSON.stringify(soundChk.checked));
+      alert('Sound ' + (soundChk.checked ? 'enabled' : 'disabled'));
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      if(confirm('Reset everything (profile, stats, leaderboard, achievements)?')){
+        localStorage.removeItem('playerName');
+        localStorage.removeItem('craneStats');
+        localStorage.removeItem('leaderboard');
+        localStorage.removeItem('achievements');
+        localStorage.removeItem('craneScore');
+        alert('All local data cleared.');
+        location.reload();
+      }
+    });
+
+    document.getElementById('toggleTheme').addEventListener('click', ()=>{
+      // very simple theme toggle using body background
+      const current = document.body.style.background;
+      if(current.includes('white')){
+        // set dark
+        document.body.style.background = '';
+        alert('Dark theme applied');
+      } else {
+        document.body.style.background = 'linear-gradient(135deg,#ffffff,#f1f1f1)';
+        alert('Light theme applied (temporary preview)');
+      }
+    });
+  </script>
+</body>
+</html>
