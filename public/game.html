@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Play — Crane Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      --card: rgba(255,255,255,0.06);
+      --accent: linear-gradient(90deg,#00f260,#0575e6);
+      --danger: linear-gradient(90deg,#f12711,#f5af19);
+      --glass: rgba(255,255,255,0.05);
+      --radius:18px;
+      --white: #fff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,system-ui;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--white);padding:20px}
+    .wrap{width:95%;max-width:920px;background:var(--card);padding:20px;border-radius:var(--radius);backdrop-filter: blur(8px);box-shadow:0 10px 30px rgba(0,0,0,0.35)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .left{display:flex;gap:12px;align-items:center}
+    h1{margin:0;font-size:1.3rem}
+    .meta{opacity:0.9}
+    .panel{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:18px}
+    .card{background:var(--glass);padding:18px;border-radius:12px}
+    #questionCard{min-height:170px;display:flex;flex-direction:column;justify-content:space-between}
+    #question{font-size:1.05rem;margin-bottom:8px}
+    .opts{display:flex;flex-direction:column;gap:10px}
+    .optBtn{padding:12px;border-radius:10px;border:none;background:rgba(255,255,255,0.06);color:var(--white);cursor:pointer;text-align:left;font-weight:600;transition:transform .15s,background .15s}
+    .optBtn:hover{transform:translateY(-3px);background:rgba(255,255,255,0.09)}
+    .optBtn.correct{background:linear-gradient(90deg,#4caf50,#66bb6a);color:#fff}
+    .optBtn.wrong{background:linear-gradient(90deg,#f44336,#e57373);color:#fff}
+    .progressWrap{height:12px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden}
+    #progress{height:100%;width:0%;background:var(--accent);transition:width .5s ease}
+    .timerWrap{height:12px;background:rgba(255,0,0,0.06);border-radius:10px;overflow:hidden;margin-top:12px}
+    #timerBar{height:100%;width:0%;background:var(--danger);transition:width 1s linear}
+    .rightCol .stat{display:flex;justify-content:space-between;padding:10px;border-radius:10px;background:rgba(255,255,255,0.03);margin-bottom:10px}
+    .small{font-size:0.9rem;opacity:0.9}
+    .controls{display:flex;gap:12px;margin-top:12px}
+    .btn{padding:10px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,#ff9a66,#ff5e62);color:#fff;font-weight:700;cursor:pointer}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.08)}
+    footer{margin-top:14px;text-align:center;opacity:0.8}
+    @media(max-width:920px){.panel{grid-template-columns:1fr}.rightCol{order:2}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="left">
+        <h1>🔍 Crane Diagnostic — Simulation Mode</h1>
+        <div class="meta" id="playerLabel"></div>
+      </div>
+      <div>
+        <a class="btn ghost" href="index.html">Home</a>
+        <a class="btn" id="settingsBtn" href="settings.html">Settings</a>
+      </div>
+    </header>
+
+    <div class="panel">
+      <main class="card" id="questionCard">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="small">Level: <strong id="levelLabel"></strong></div>
+            <div class="small">Score: <strong id="score">0</strong></div>
+          </div>
+
+          <div style="margin-top:12px" class="progressWrap"><div id="progress"></div></div>
+
+          <div style="margin-top:16px">
+            <div id="question">Loading question…</div>
+            <div class="opts" id="options"></div>
+            <div id="feedback" class="small" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="timerWrap"><div id="timerBar"></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div class="small">Time Left: <strong id="timeLeft">0</strong>s</div>
+            <div class="small"><span id="qCount">0</span>/<span id="qTotal">0</span></div>
+          </div>
+          <div class="controls">
+            <button class="btn ghost" id="skipBtn">Skip</button>
+            <button class="btn" id="quitBtn">Quit</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="rightCol">
+        <div class="card">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(90deg,#00c9ff,#92fe9d);display:flex;align-items:center;justify-content:center;font-weight:800">CR</div>
+            <div>
+              <div class="small">Player</div>
+              <div id="playerNameUI" style="font-weight:700">—</div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="stat"><div class="small">High Score</div><div id="highScore">0</div></div>
+            <div class="stat"><div class="small">Plays</div><div id="plays">0</div></div>
+            <div class="stat"><div class="small">Avg Score</div><div id="avg">0</div></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <button class="btn" id="soundToggle">Toggle Sound</button>
+            <a class="btn ghost" href="achievements.html" style="display:inline-block;margin-left:8px">Achievements</a>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h4 style="margin:0 0 8px">Leaderboard (Top 5)</h4>
+          <ol id="leaderboardList" style="margin:0 0 0 16px;padding:0" class="small"></ol>
+        </div>
+      </aside>
+    </div>
+
+    <footer>Good luck — identify errors accurately to climb the leaderboard!</footer>
+  </div>
+
+  <!-- Sound: short ding & buzz -->
+  <audio id="sndCorrect" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-treasure-2063.mp3" preload="auto"></audio>
+  <audio id="sndWrong" src="https://assets.mixkit.co/sfx/preview/mixkit-female-scream-in-fear-2703.mp3" preload="auto"></audio>
+  <audio id="sndWin" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3" preload="auto"></audio>
+
+  <script>
+    // Questions pool (expand as needed)
+    const QUESTIONS = [
+      {q:"Crane motor overheats during operation. What’s the likely error?", opts:["Overload","Low Voltage","Brake Failure","Wire Cut"], a:"Overload"},
+      {q:"Crane hook not lifting load properly. Cause?", opts:["Rope Damage","Motor Jammed","Brake Engaged","Power Surge"], a:"Rope Damage"},
+      {q:"Crane suddenly stops moving. Most probable reason?", opts:["Emergency Stop Pressed","Motor Burnt","Loose Connection","All of the above"], a:"All of the above"},
+      {q:"Unusual noise from gearbox. Suggests:", opts:["Gear Damage","Loose Bolt","Lubrication Issue","All of the above"], a:"All of the above"},
+      {q:"Limit switch failure causes:", opts:["Overtravel","Brake Failure","Hook Jam","Motor Overload"], a:"Overtravel"},
+      {q:"Wire rope shows visible fraying. Action?", opts:["Replace Rope","Ignore","Increase Load","Polish Rope"], a:"Replace Rope"},
+      {q:"Hydraulic leak observed near pump. Root cause?", opts:["Seal Failure","Electrical Error","Sound Issue","Overheating"], a:"Seal Failure"},
+      {q:"Crane moves erratically on trolley. Likely issue?", opts:["Wheel Misalignment","Low Oil","Loose Bolt","None"], a:"Wheel Misalignment"}
+    ];
+
+    // Level configs
+    const LEVELS = {
+      easy:{time:20,qcount:3},
+      medium:{time:15,qcount:4},
+      hard:{time:10,qcount:5}
+    };
+
+    // state
+    let player = localStorage.getItem('playerName') || 'Guest';
+    let defaultLevel = new URLSearchParams(location.search).get('level') || localStorage.getItem('craneDefaultLevel') || 'medium';
+    let config = LEVELS[defaultLevel] || LEVELS['medium'];
+    let timeLimit = config.time, QTOTAL = config.qcount;
+    let qIndex = 0, score=0, timer= null, timeLeft = timeLimit;
+    let currentPool = shuffleArray([...QUESTIONS]).slice(0, QTOTAL);
+    let soundOn = JSON.parse(localStorage.getItem('soundOn') || 'true');
+
+    // UI refs
+    const qEl = document.getElementById('question'), optsEl = document.getElementById('options'),
+          timeEl = document.getElementById('timeLeft'), timerBar = document.getElementById('timerBar'),
+          progressEl = document.getElementById('progress'), scoreEl = document.getElementById('score'),
+          qCountEl = document.getElementById('qCount'), qTotalEl = document.getElementById('qTotal'),
+          playerNameUI = document.getElementById('playerNameUI'), playerLabel = document.getElementById('playerLabel'),
+          levelLabel = document.getElementById('levelLabel'), feedback = document.getElementById('feedback'),
+          sndCorrect = document.getElementById('sndCorrect'), sndWrong = document.getElementById('sndWrong'),
+          sndWin = document.getElementById('sndWin');
+
+    // initialize UI
+    document.getElementById('playerNameUI').innerText = player;
+    document.getElementById('playerLabel').innerText = (player ? player : 'Guest');
+    document.getElementById('levelLabel').innerText = defaultLevel.toUpperCase();
+    qTotalEl.innerText = QTOTAL; qCountEl.innerText = 1;
+    updateStatsUI();
+    renderLeaderboard();
+
+    // start
+    loadQuestion();
+    startTimer();
+
+    // functions
+    function loadQuestion(){
+      if(qIndex >= QTOTAL){
+        endGame();
+        return;
+      }
+      const item = currentPool[qIndex];
+      qEl.innerText = item.q;
+      optsEl.innerHTML='';
+      item.opts.forEach(opt=>{
+        const btn = document.createElement('button');
+        btn.className='optBtn';
+        btn.innerText=opt;
+        btn.onclick = ()=>answer(btn,opt);
+        optsEl.appendChild(btn);
+      });
+      progressEl.style.width = ((qIndex)/QTOTAL)*100 + '%';
+      qCountEl.innerText = qIndex+1;
+      feedback.innerText='';
+      // reset timer for this question
+      resetTimer();
+    }
+
+    function answer(btn, selected){
+      disableOptions();
+      const correct = currentPool[qIndex].a;
+      if(selected === correct){
+        btn.classList.add('correct');
+        score++; scoreEl.innerText = score;
+        feedback.innerText = '✅ Correct!';
+        if(soundOn) sndCorrect.play();
+      } else {
+        btn.classList.add('wrong');
+        // highlight correct
+        Array.from(optsEl.children).forEach(b=>{
+          if(b.innerText === correct) b.classList.add('correct');
+        });
+        feedback.innerText = '❌ Wrong!';
+        if(soundOn) sndWrong.play();
+      }
+      qIndex++;
+      clearInterval(timer);
+      setTimeout(()=>{ loadQuestion() }, 900);
+    }
+
+    function disableOptions(){ Array.from(optsEl.children).forEach(b=>b.disabled=true) }
+
+    function startTimer(){
+      timeLeft = timeLimit;
+      timeEl.innerText = timeLeft;
+      timerBar.style.width = '100%';
+      timer = setInterval(()=>{
+        timeLeft--;
+        timeEl.innerText = timeLeft;
+        timerBar.style.width = (timeLeft/timeLimit)*100 + '%';
+        if(timeLeft <= 0){ clearInterval(timer); endGame(); }
+      },1000);
+    }
+
+    function resetTimer(){
+      clearInterval(timer);
+      startTimer();
+    }
+
+    document.getElementById('skipBtn').addEventListener('click', ()=>{
+      qIndex++; clearInterval(timer); loadQuestion();
+    });
+
+    document.getElementById('quitBtn').addEventListener('click', ()=>{
+      if(confirm('Quit current game?')){ endGame(); }
+    });
+
+    document.getElementById('soundToggle').addEventListener('click', ()=>{
+      soundOn = !soundOn; localStorage.setItem('soundOn', JSON.stringify(soundOn));
+      alert('Sounds ' + (soundOn? 'Enabled':'Disabled'));
+    });
+
+    function endGame(){
+      clearInterval(timer);
+      // save score & stats
+      const totalQuestions = QTOTAL;
+      localStorage.setItem('craneScore', score);
+      localStorage.setItem('totalQuestions', totalQuestions);
+      localStorage.setItem('craneLevel', defaultLevel);
+
+      // update stats object
+      const stats = JSON.parse(localStorage.getItem('craneStats') || '{"plays":0,"totalScore":0,"highest":0}');
+      stats.plays = (stats.plays||0) + 1;
+      stats.totalScore = (stats.totalScore||0) + score;
+      stats.highest = Math.max(stats.highest||0, score);
+      localStorage.setItem('craneStats', JSON.stringify(stats));
+
+      // update leaderboard
+      const lb = JSON.parse(localStorage.getItem('leaderboard')||'[]');
+      lb.push({name:player||'Guest',score:score,total:totalQuestions,level:defaultLevel,date:new Date().toLocaleString()});
+      lb.sort((a,b)=>b.score - a.score);
+      localStorage.setItem('leaderboard', JSON.stringify(lb.slice(0,20)));
+
+      // achievements check (will be visible on achievements page)
+      checkAchievements(score,totalQuestions);
+
+      // redirect to result
+      setTimeout(()=>{ window.location.href = 'result.html'; }, 700);
+    }
+
+    // small utils
+    function shuffleArray(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a }
+    function updateStatsUI(){
+      const s = JSON.parse(localStorage.getItem('craneStats')||'{"plays":0,"totalScore":0,"highest":0}');
+      document.getElementById('highScore').innerText = s.highest || 0;
+      document.getElementById('plays').innerText = s.plays || 0;
+      const avg = s.plays ? Math.round((s.totalScore / s.plays) * 100)/100 : 0;
+      document.getElementById('avg').innerText = avg;
+    }
+    function renderLeaderboard(){
+      const lb = JSON.parse(localStorage.getItem('leaderboard')||'[]').slice(0,5);
+      const ol = document.getElementById('leaderboardList'); ol.innerHTML='';
+      if(lb.length===0){ ol.innerHTML = '<li class="small">No scores yet — be first!</li>'; return; }
+      lb.forEach(item=>{
+        const li = document.createElement('li'); li.innerText = `${item.name} — ${item.score}/${item.total} (${item.level})`;
+        ol.appendChild(li);
+      });
+    }
+
+    function checkAchievements(score,total){
+      // store achievement flags
+      let ach = JSON.parse(localStorage.getItem('achievements')||'{}');
+      if(!ach.firstTry && score>=1) ach.firstTry = true;
+      if(!ach.perfect && score === total) ach.perfect = true;
+      if(!ach.speedster && timeLimit <= 10 && score >= Math.ceil(total*0.6)) ach.speedster = true;
+      localStorage.setItem('achievements', JSON.stringify(ach));
+    }
+  </script>
+</body>
+</html>
