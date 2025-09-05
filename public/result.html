@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Result — Crane Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--bg:linear-gradient(135deg,#4facfe,#00f2fe);--card:#fff;--radius:18px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,system-ui;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:18px}
+    .card{background:var(--card);padding:28px;border-radius:var(--radius);width:100%;max-width:720px;box-shadow:0 10px 30px rgba(0,0,0,0.18)}
+    h1{margin:0;font-size:1.6rem}
+    .score{font-size:2rem;margin-top:10px;font-weight:800}
+    .msg{margin-top:10px;font-size:1.05rem}
+    .actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+    .btn{padding:12px 16px;border-radius:12px;border:none;background:linear-gradient(90deg,#ff9a66,#ff5e62);color:#fff;font-weight:700;cursor:pointer}
+    .ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:#333}
+    .meta{margin-top:18px;display:flex;gap:12px}
+    .box{flex:1;padding:12px;border-radius:10px;background:rgba(0,0,0,0.03);text-align:center}
+    ol{padding-left:18px}
+    @media(max-width:600px){.meta{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎉 Round Complete</h1>
+    <div class="score" id="scoreText">0 / 0</div>
+    <div class="msg" id="message">—</div>
+
+    <div class="actions">
+      <button class="btn" onclick="playAgain()">Play Again</button>
+      <a href="index.html" class="btn ghost">Home</a>
+      <a href="stats.html" class="btn ghost">View Stats</a>
+    </div>
+
+    <div class="meta">
+      <div class="box">
+        <strong>Player</strong>
+        <div id="player"></div>
+      </div>
+      <div class="box">
+        <strong>Level</strong>
+        <div id="level"></div>
+      </div>
+      <div class="box">
+        <strong>Date</strong>
+        <div id="date"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <h3>Top Scores (Local)</h3>
+      <ol id="leader"></ol>
+    </div>
+  </div>
+
+  <script>
+    const score = parseInt(localStorage.getItem('craneScore')) || 0;
+    const total = parseInt(localStorage.getItem('totalQuestions')) || 0;
+    const level = localStorage.getItem('craneLevel') || 'medium';
+    const player = localStorage.getItem('playerName') || 'Guest';
+    const leader = JSON.parse(localStorage.getItem('leaderboard')||'[]').slice(0,5);
+
+    document.getElementById('scoreText').innerText = `${score} / ${total}`;
+    document.getElementById('player').innerText = player;
+    document.getElementById('level').innerText = level.toUpperCase();
+    document.getElementById('date').innerText = new Date().toLocaleString();
+
+    const percent = total ? Math.round((score/total)*100) : 0;
+    const msgEl = document.getElementById('message');
+    if(percent === 100) msgEl.innerText = '🚀 Perfect! Crane Expert!';
+    else if(percent >= 70) msgEl.innerText = '👍 Great job — keep practicing!';
+    else if(percent >= 40) msgEl.innerText = '🙂 Not bad — try again!';
+    else msgEl.innerText = '😅 Needs improvement — try another round!';
+
+    const ol = document.getElementById('leader');
+    if(leader.length===0) ol.innerHTML = '<li>No scores yet.</li>';
+    else leader.forEach(i=>{
+      const li = document.createElement('li');
+      li.innerText = `${i.name} — ${i.score}/${i.total} (${i.level})`;
+      ol.appendChild(li);
+    });
+
+    function playAgain(){
+      const def = localStorage.getItem('craneDefaultLevel') || 'medium';
+      window.location.href = 'game.html?level=' + def;
+    }
+  </script>
+</body>
+</html>
