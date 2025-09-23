@@ -1,0 +1,193 @@
+/* ---------- Global Styles ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: rgba(0,0,0,0.75);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+/* ---------- Headings ---------- */
+h1, h2 {
+  margin-bottom: 20px;
+  color: #fff;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+}
+
+/* ---------- Forms ---------- */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+input:focus {
+  border: 2px solid #ff6b6b;
+  background: rgba(255,255,255,0.1);
+}
+
+/* ---------- Buttons ---------- */
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: #ff4c4c;
+  transform: scale(1.05);
+}
+
+a {
+  color: #ff6b6b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Dashboard Buttons ---------- */
+.dashboard-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* ---------- Quiz Page ---------- */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.options button {
+  background: #4e54c8;
+}
+
+.options button:hover {
+  background: #6f7efc;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.progress {
+  background: rgba(255,255,255,0.2);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #ff6b6b;
+  transition: width 0.3s ease;
+}
+
+/* ---------- Lifelines ---------- */
+.lifelines {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0;
+}
+
+.lifelines button {
+  flex: 1;
+  margin: 0 5px;
+  background: #1dd1a1;
+}
+
+.lifelines button:hover {
+  background: #10ac84;
+}
+
+/* ---------- Tables (Leaderboard) ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+th {
+  background: rgba(0,0,0,0.6);
+}
+
+/* ---------- Achievements Page ---------- */
+ul {
+  list-style: none;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+ul li {
+  background: rgba(255,255,255,0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px){
+  .container {
+    padding: 20px 25px;
+  }
+
+  button, input {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
