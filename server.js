@@ -23,17 +23,24 @@ mongoose.connect(process.env.MONGO_URI)
 
 // User Schema
 const userSchema = new mongoose.Schema({
-    username: String,
-    email: String,
+    username: { type: String, unique: true },
+    email: { type: String, unique: true },
     password: String,
     score: { type: Number, default: 0 },
     achievements: { streaks: Number, maxScore: Number, completedQuizzes: Number }
 });
 const User = mongoose.model("User", userSchema);
 
-// Register
+// Register with duplicate check
 app.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
+
+    // Check if username or email already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+        return res.status(400).json({ message: "Username or Email already exists" });
+    }
+
     const hashed = await bcrypt.hash(password, 10);
     const user = new User({
         username,
