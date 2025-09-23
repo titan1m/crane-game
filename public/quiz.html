@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crane Error Quiz</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h2>Crane Error Quiz</h2>
+    <div class="status-bar">
+        <span id="score">Score: 0</span>
+        <span id="lives">Lives: 3</span>
+        <span id="time">Time: 60s</span>
+        <span id="streak">Streak: 0</span>
+    </div>
+
+    <div id="question-container">
+        <div id="question">Question will appear here</div>
+        <div class="options">
+            <button class="option-btn" data-index="0"></button>
+            <button class="option-btn" data-index="1"></button>
+            <button class="option-btn" data-index="2"></button>
+            <button class="option-btn" data-index="3"></button>
+        </div>
+    </div>
+
+    <div class="lifelines">
+        <button id="fifty">50-50</button>
+        <button id="skip">Skip</button>
+        <button id="extraTime">+5s</button>
+    </div>
+
+    <div class="progress">
+        <div id="progress-bar"></div>
+    </div>
+
+    <button onclick="finishQuiz()">Finish Quiz</button>
+</div>
+
+<script src="quiz.js"></script>
+</body>
+</html>
