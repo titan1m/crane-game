@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - Crane Error Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Profile</h1>
+    <p id="username"></p>
+    <p id="email"></p>
+    <p id="score"></p>
+    <p id="level"></p>
+    <button onclick="window.location.href='home.html'">Back to Home</button>
+  </div>
+</div>
+<script>
+const userId = localStorage.getItem("userId");
+fetch(`/profile/${userId}`)
+.then(res=>res.json())
+.then(user=>{
+  document.getElementById("username").innerText="Username: "+user.username;
+  document.getElementById("email").innerText="Email: "+user.email;
+  document.getElementById("score").innerText="High Score: "+user.highScore;
+  document.getElementById("level").innerText="Level: "+user.level;
+});
+</script>
+</body>
+</html>
