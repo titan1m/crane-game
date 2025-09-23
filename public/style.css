@@ -7,7 +7,7 @@
 }
 
 body {
-  background: linear-gradient(135deg, #2b2d42, #8d99ae);
+  background: linear-gradient(135deg, #1a1a2e, #162447);
   color: #fff;
   min-height: 100vh;
   display: flex;
@@ -16,21 +16,22 @@ body {
 }
 
 .container {
-  background: rgba(0,0,0,0.75);
-  padding: 30px 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-  width: 90%;
-  max-width: 550px;
+  background: rgba(255,255,255,0.05);
+  padding: 35px 45px;
+  border-radius: 25px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+  width: 95%;
+  max-width: 600px;
   text-align: center;
   animation: fadeIn 1s ease;
+  position: relative;
 }
 
 /* ---------- Headings ---------- */
 h1, h2 {
   margin-bottom: 25px;
-  color: #fff;
-  text-shadow: 1px 1px 6px rgba(0,0,0,0.7);
+  color: #00f5d4;
+  text-shadow: 1px 1px 10px rgba(0,0,0,0.6);
   animation: slideDown 0.7s ease;
 }
 
@@ -45,7 +46,7 @@ input[type="text"],
 input[type="email"],
 input[type="password"] {
   padding: 14px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   outline: none;
   font-size: 16px;
@@ -55,30 +56,49 @@ input[type="password"] {
 }
 
 input:focus {
-  border: 2px solid #ef233c;
-  background: rgba(255,255,255,0.15);
+  border: 2px solid #ff2e63;
+  background: rgba(255,255,255,0.2);
 }
 
 /* ---------- Buttons ---------- */
 button {
-  padding: 12px 20px;
+  padding: 14px 22px;
   border: none;
-  border-radius: 12px;
-  background: #ef233c;
+  border-radius: 15px;
+  background: linear-gradient(45deg,#ff2e63,#08d9d6);
   color: #fff;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 button:hover {
-  background: #d90429;
-  transform: scale(1.05);
+  transform: scale(1.08);
+  filter: brightness(1.2);
+}
+
+/* Ripple effect */
+.ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.6);
+  display: block;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: rippleAnim 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleAnim{
+  to {transform: scale(20); opacity:0;}
 }
 
 a {
-  color: #ef233c;
+  color: #08d9d6;
   text-decoration: none;
   font-weight: bold;
 }
@@ -91,17 +111,16 @@ a:hover {
 .options {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
   margin: 20px 0;
 }
 
 .options button {
-  background: #8d99ae;
-  color: #fff;
+  background: #0f3460;
 }
 
 .options button:hover {
-  background: #6c7b95;
+  background: #53354a;
 }
 
 /* ---------- Lifelines ---------- */
@@ -114,19 +133,19 @@ a:hover {
 .lifelines button {
   flex: 1;
   margin: 0 5px;
-  background: #06d6a0;
+  background: #ff2e63;
   font-size: 14px;
 }
 
 .lifelines button:hover {
-  background: #04a887;
+  background: #ff3f7d;
 }
 
 /* ---------- Progress bar ---------- */
 .progress {
   background: rgba(255,255,255,0.2);
-  height: 14px;
-  border-radius: 7px;
+  height: 18px;
+  border-radius: 9px;
   overflow: hidden;
   margin-bottom: 20px;
 }
@@ -134,8 +153,42 @@ a:hover {
 #progress-bar {
   height: 100%;
   width: 0%;
-  background: #ef233c;
+  background: #08d9d6;
   transition: width 0.4s ease;
+}
+
+/* ---------- Countdown timer ---------- */
+#timer {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff2e63;
+  text-shadow: 1px 1px 6px rgba(0,0,0,0.7);
+  margin-bottom: 10px;
+}
+
+/* ---------- Popups ---------- */
+.popup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #08d9d6;
+  padding: 20px 30px;
+  border-radius: 15px;
+  color: #000;
+  font-weight: bold;
+  font-size: 18px;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: none;
+  animation: popupAnim 0.5s ease;
+}
+
+.popup.wrong {background: #ff2e63; color:#fff;}
+
+@keyframes popupAnim{
+  0% {opacity:0; transform: translate(-50%, -50%) scale(0.5);}
+  100% {opacity:1; transform: translate(-50%, -50%) scale(1);}
 }
 
 /* ---------- Animations ---------- */
@@ -147,6 +200,18 @@ a:hover {
 @keyframes slideDown {
   from {transform: translateY(-20px); opacity:0;}
   to {transform: translateY(0); opacity:1;}
+}
+
+/* ---------- Shake animation for wrong answer ---------- */
+.shake{
+  animation: shakeAnim 0.5s;
+}
+@keyframes shakeAnim{
+  0% {transform: translateX(0);}
+  25% {transform: translateX(-10px);}
+  50% {transform: translateX(10px);}
+  75% {transform: translateX(-10px);}
+  100% {transform: translateX(0);}
 }
 
 /* ---------- Responsive ---------- */
