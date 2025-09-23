@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home - Crane Error Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Welcome <span id="userName"></span></h1>
+      <label for="level">Select Level:</label>
+      <select id="level">
+        <option>Easy</option>
+        <option>Medium</option>
+        <option>Hard</option>
+      </select>
+      <button onclick="startGame()">Play Game</button>
+      <button onclick="window.location.href='profile.html'">Profile</button>
+      <button onclick="window.location.href='leaderboard.html'">Leaderboard</button>
+      <button onclick="window.location.href='howtoplay.html'">How To Play</button>
+      <button onclick="window.location.href='settings.html'">Settings</button>
+      <button onclick="window.location.href='index.html'">Logout</button>
+    </div>
+  </div>
+<script>
+document.getElementById("userName").innerText = localStorage.getItem("username");
+function startGame(){
+  const level = document.getElementById("level").value;
+  localStorage.setItem("level", level);
+  window.location.href="game.html";
+}
+</script>
+</body>
+</html>
