@@ -1,49 +1,66 @@
-// Animate status bar
-const statusBar = document.querySelector(".status-bar");
-if(statusBar){
-    statusBar.style.transition = "all 0.5s ease";
+// Countdown timer
+let time = 30; // seconds per question
+const timerEl = document.getElementById("timer");
+
+let timerInterval = setInterval(()=>{
+    if(timerEl) timerEl.innerText = `Time: ${time}s`;
+    time--;
+    if(time < 0){
+        clearInterval(timerInterval);
+        showPopup("Time's up!", false);
+        nextQuestion();
+    }
+},1000);
+
+// Popup for correct/wrong
+function showPopup(message, correct=true){
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    if(!correct) popup.classList.add("wrong");
+    popup.innerText = message;
+    document.body.appendChild(popup);
+    popup.style.display="block";
+    setTimeout(()=>{
+        popup.remove();
+    },1500);
 }
 
-// Button click ripple effect
-document.querySelectorAll("button").forEach(btn=>{
-    btn.addEventListener("click", (e)=>{
-        let ripple = document.createElement("span");
-        ripple.className = "ripple";
-        btn.appendChild(ripple);
-        ripple.style.left = e.offsetX + "px";
-        ripple.style.top = e.offsetY + "px";
-        setTimeout(()=>{ripple.remove();}, 600);
+// Quiz options click
+document.querySelectorAll(".options button").forEach(btn=>{
+    btn.addEventListener("click",(e)=>{
+        const correct = btn.dataset.correct==="true";
+        if(correct){
+            showPopup("Correct!", true);
+        } else {
+            showPopup("Wrong!", false);
+            shakeContainer();
+            time -= 5; // deduct time for wrong answer
+        }
+        nextQuestion();
     });
 });
 
-// Quiz progress bar smooth update
-function updateProgressBar(currentQ, totalQ){
-    const bar = document.getElementById("progress-bar");
-    if(bar) bar.style.width = ((currentQ)/totalQ)*100 + "%";
-}
-
-// Highlight correct and wrong option
-function highlightOption(button, correct=true){
-    button.style.background = correct ? "#06d6a0" : "#ef233c";
-    setTimeout(()=>{button.style.background = "";}, 800);
-}
-
-// Example: shake animation for wrong answer
+// Shake container animation
 function shakeContainer(){
     const container = document.querySelector(".container");
     container.classList.add("shake");
     setTimeout(()=>{container.classList.remove("shake");}, 500);
 }
 
-/* Add the following CSS for shake effect in script.css or inside <style>
-.shake{
-    animation: shakeAnim 0.5s;
+// Update progress bar
+function updateProgressBar(current, total){
+    const bar = document.getElementById("progress-bar");
+    if(bar) bar.style.width = (current/total*100) + "%";
 }
-@keyframes shakeAnim{
-    0% {transform: translateX(0);}
-    25% {transform: translateX(-10px);}
-    50% {transform: translateX(10px);}
-    75% {transform: translateX(-10px);}
-    100% {transform: translateX(0);}
-}
-*/
+
+// Button ripple effect
+document.querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+        let ripple = document.createElement("span");
+        ripple.className="ripple";
+        btn.appendChild(ripple);
+        ripple.style.left=e.offsetX+"px";
+        ripple.style.top=e.offsetY+"px";
+        setTimeout(()=>{ripple.remove();},600);
+    });
+});
