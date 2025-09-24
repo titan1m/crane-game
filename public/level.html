@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Select Level</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<h2>Select Level</h2>
+<button onclick="selectLevel('Easy')">Easy</button>
+<button onclick="selectLevel('Medium')">Medium</button>
+<button onclick="selectLevel('Hard')">Hard</button>
+<a href="dashboard.html">⬅ Back</a>
+</div>
+
+<script>
+function selectLevel(level){
+  localStorage.setItem("level", level);
+  if(level==="Easy") localStorage.setItem("lives", 3);
+  if(level==="Medium") localStorage.setItem("lives", 2);
+  if(level==="Hard") localStorage.setItem("lives", 1);
+  window.location.href = "quiz.html";
+}
+</script>
+</body>
+</html>
