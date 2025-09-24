@@ -23,31 +23,6 @@ const questions = [
     question: "What does hydraulic pressure drop warning mean?",
     options: ["Low hydraulic fluid", "Pump malfunction", "Hose leak", "All of the above"],
     answer: "All of the above"
-  },
-  {
-    question: "What should be done if the load moment indicator shows overload?",
-    options: ["Reduce load weight", "Extend boom", "Ignore it", "Speed up lift"],
-    answer: "Reduce load weight"
-  },
-  {
-    question: "Why would a mobile crane boom not extend fully?",
-    options: ["Hydraulic failure", "Mechanical jam", "Control error", "All of the above"],
-    answer: "All of the above"
-  },
-  {
-    question: "What is the first step if crane tilts unexpectedly?",
-    options: ["Stop operation", "Sound horn", "Increase load", "Raise boom quickly"],
-    answer: "Stop operation"
-  },
-  {
-    question: "What causes crane engine overheating?",
-    options: ["Low coolant", "Continuous heavy lifting", "Fan malfunction", "All of the above"],
-    answer: "All of the above"
-  },
-  {
-    question: "If the crane’s wire rope is frayed, what should be done?",
-    options: ["Continue operation carefully", "Replace the wire rope", "Lubricate rope", "Ignore"],
-    answer: "Replace the wire rope"
   }
 ];
 
@@ -56,7 +31,7 @@ let score = 0;
 let lives = parseInt(localStorage.getItem("lives")) || 3;
 let streak = 0;
 let userId = localStorage.getItem("userId");
-let timer = 15; 
+let timer = 15;
 let timerInterval;
 
 const questionText = document.getElementById("questionText");
@@ -64,6 +39,17 @@ const optionsDiv = document.getElementById("options");
 const status = document.getElementById("status");
 const timerFill = document.getElementById("timerFill");
 const lifelineBtn = document.getElementById("lifelineBtn");
+
+// Create popup
+const popup = document.createElement("div");
+popup.classList.add("popup");
+document.body.appendChild(popup);
+
+function showPopup(message, type){
+  popup.textContent = message;
+  popup.className = `popup show ${type}`;
+  setTimeout(()=>{ popup.classList.remove("show"); }, 1200);
+}
 
 // Display question
 function displayQuestion(){
@@ -78,7 +64,7 @@ function displayQuestion(){
     const btn = document.createElement("button");
     btn.classList.add("option-btn");
     btn.textContent = opt;
-    btn.onclick = ()=>checkAnswer(opt, btn);
+    btn.onclick = ()=>checkAnswer(opt);
     optionsDiv.appendChild(btn);
   });
   timer = 15;
@@ -97,38 +83,26 @@ function updateTimer(){
   }
 }
 
-// Check answer with popups
-function checkAnswer(option, btn){
+// Check answer
+function checkAnswer(option){
   clearInterval(timerInterval);
   const correct = questions[currentQuestion].answer;
   if(option === correct){
     score++;
     streak++;
-    btn.style.background = "linear-gradient(45deg,#4CAF50,#81C784)";
-    setTimeout(()=>{
-      alert("✅ Correct!");
-      nextQuestion();
-    }, 200);
+    showPopup("✅ Correct!", "correct");
   } else {
     streak = 0;
     lives--;
-    btn.style.background = "linear-gradient(45deg,#F44336,#E57373)";
-    setTimeout(()=>{
-      alert(`❌ Wrong! Correct answer: ${correct}`);
-      nextQuestion();
-    }, 200);
+    showPopup(`❌ Wrong! Correct: ${correct}`, "wrong");
   }
   updateStatus();
-}
-
-// Next question
-function nextQuestion(){
-  if(lives <= 0){
+  if(lives<=0){
     endQuiz();
     return;
   }
   currentQuestion++;
-  displayQuestion();
+  setTimeout(displayQuestion, 1000);
 }
 
 // Update score/lives display
@@ -136,9 +110,8 @@ function updateStatus(){
   status.textContent = `Score: ${score} | Lives: ${lives} | Streak: ${streak}`;
 }
 
-// Lifeline glow
+// Lifeline
 lifelineBtn.addEventListener("click", ()=>{
-  lifelineBtn.style.boxShadow = "0 0 25px #ff416c";
   const q = questions[currentQuestion];
   const correct = q.answer;
   const wrongOptions = q.options.filter(opt=>opt!==correct);
@@ -150,14 +123,28 @@ lifelineBtn.addEventListener("click", ()=>{
   }
 });
 
+// Wrong answer if timer ends
+function wrongAnswer(msg){
+  streak = 0;
+  lives--;
+  showPopup(msg, "wrong");
+  updateStatus();
+  if(lives<=0){
+    endQuiz();
+    return;
+  }
+  currentQuestion++;
+  setTimeout(displayQuestion, 1000);
+}
+
 // End quiz
 function endQuiz(){
-  alert(`Game Over!\nScore: ${score}`);
+  showPopup(`Game Over! Score: ${score}`, "wrong");
   fetch("/update-score",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({userId, score, streak})
-  }).then(()=> window.location.href="dashboard.html");
+  }).then(()=> setTimeout(()=>window.location.href="dashboard.html", 1500));
 }
 
 // Initialize
