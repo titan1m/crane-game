@@ -1,0 +1,133 @@
+/* ---------------- General ---------------- */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: rgba(255,255,255,0.95);
+  padding: 30px 50px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  animation: fadeIn 1s ease;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* ---------------- Forms ---------------- */
+input[type="text"], input[type="email"], input[type="password"] {
+  width: 80%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.3s;
+}
+
+input:focus {
+  border-color: #74ebd5;
+  box-shadow: 0 0 5px #74ebd5;
+}
+
+/* ---------------- Buttons ---------------- */
+button {
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  margin: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+a {
+  text-decoration: none;
+  color: #2575fc;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------- Quiz Timer Bar ---------------- */
+#timerBar {
+  width: 100%;
+  height: 20px;
+  background: #ddd;
+  border-radius: 10px;
+  margin: 15px 0;
+  overflow: hidden;
+}
+
+#timerFill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  transition: width 1s linear;
+}
+
+/* ---------------- Lifeline ---------------- */
+#lifelineBtn {
+  background: linear-gradient(45deg,#ff416c,#ff4b2b);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#lifelineBtn:hover {
+  box-shadow: 0 0 20px #ff416c;
+  transform: scale(1.1);
+}
+
+/* ---------------- Status ---------------- */
+#status {
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* ---------------- Animations ---------------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* ---------------- Quiz Options ---------------- */
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.option-btn:hover {
+  background: #74ebd5;
+  transform: scale(1.02);
+}
