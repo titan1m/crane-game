@@ -1,3 +1,4 @@
+/* ---------------- General ---------------- */
 body {
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg, #74ebd5, #ACB6E5);
@@ -7,6 +8,14 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  overflow: hidden;
+  animation: bgAnimation 15s ease infinite;
+}
+
+@keyframes bgAnimation {
+  0% {background-position:0% 50%;}
+  50% {background-position:100% 50%;}
+  100% {background-position:0% 50%;}
 }
 
 .container {
@@ -16,15 +25,18 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   text-align: center;
   width: 90%;
-  max-width: 500px;
+  max-width: 550px;
   animation: fadeIn 1s ease;
 }
 
+/* ---------------- Headings ---------------- */
 h2 {
   margin-bottom: 20px;
   color: #333;
+  text-shadow: 1px 1px 5px #2575fc;
 }
 
+/* ---------------- Forms ---------------- */
 input[type="text"], input[type="email"], input[type="password"] {
   width: 80%;
   padding: 12px;
@@ -37,9 +49,10 @@ input[type="text"], input[type="email"], input[type="password"] {
 
 input:focus {
   border-color: #74ebd5;
-  box-shadow: 0 0 5px #74ebd5;
+  box-shadow: 0 0 10px #74ebd5;
 }
 
+/* ---------------- Buttons ---------------- */
 button {
   background: linear-gradient(45deg, #6a11cb, #2575fc);
   color: white;
@@ -54,9 +67,10 @@ button {
 
 button:hover {
   transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 0 25px rgba(0,0,0,0.3), 0 0 20px #2575fc;
 }
 
+/* ---------------- Links ---------------- */
 a {
   text-decoration: none;
   color: #2575fc;
@@ -64,4 +78,104 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+/* ---------------- Quiz Timer Bar ---------------- */
+#timerBar {
+  width: 100%;
+  height: 20px;
+  background: #ddd;
+  border-radius: 10px;
+  margin: 15px 0;
+  overflow: hidden;
+}
+
+#timerFill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  transition: width 1s linear, background 1s linear;
+  border-radius: 10px;
+}
+
+/* ---------------- Lifeline ---------------- */
+#lifelineBtn {
+  background: linear-gradient(45deg,#ff416c,#ff4b2b);
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.5s;
+  animation: pulse 2s infinite;
+}
+
+#lifelineBtn:hover {
+  box-shadow: 0 0 30px #ff416c;
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px #ff416c; }
+  50% { box-shadow: 0 0 25px #ff416c; }
+  100% { box-shadow: 0 0 10px #ff416c; }
+}
+
+/* ---------------- Status ---------------- */
+#status {
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px #6a11cb;
+}
+
+/* ---------------- Animations ---------------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* ---------------- Quiz Options ---------------- */
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.option-btn:hover {
+  background: linear-gradient(45deg,#6a11cb,#2575fc);
+  transform: scale(1.03);
+  color: white;
+  box-shadow: 0 0 15px #6a11cb;
+}
+
+/* ---------------- Correct/Wrong Feedback ---------------- */
+.feedback {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 30px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+  z-index: 999;
+  opacity: 0;
+  animation: fadeInOut 1.5s forwards;
+}
+
+.correct { background: #4CAF50; }
+.wrong { background: #F44336; }
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -20px); }
+  20%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
 }
