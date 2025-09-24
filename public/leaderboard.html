@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leaderboard</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard - Crane Error Quiz</title>
+  <link rel="stylesheet" href="script.css">
 </head>
 <body>
-<div class="container">
-<h2>Top Players</h2>
-<table id="leaderboard">
-<tr><th>Rank</th><th>Username</th><th>Score</th></tr>
-</table>
-<button onclick="back()">Back</button>
-</div>
-<script>
-async function loadLeaderboard(){
-    const res = await fetch("/leaderboard");
-    const data = await res.json();
-    const table = document.getElementById("leaderboard");
-    data.forEach((user,i)=>{
-        const tr = document.createElement("tr");
-        tr.innerHTML=`<td>${i+1}</td><td>${user.username}</td><td>${user.score}</td>`;
-        table.appendChild(tr);
-    });
-}
-function back(){ window.location.href="dashboard.html"; }
-loadLeaderboard();
-</script>
+  <div class="container">
+    <h1>🏆 Leaderboard</h1>
+    <ul id="board"></ul>
+    <a href="dashboard.html"><button class="option-btn">Back</button></a>
+  </div>
+  <script>
+    async function loadBoard(){
+      const res = await fetch("/leaderboard");
+      const data = await res.json();
+      const board=document.getElementById("board");
+      board.innerHTML="";
+      data.forEach((u,i)=>{
+        const li=document.createElement("li");
+        li.textContent = `${i+1}. ${u.username} - ${u.score}`;
+        board.appendChild(li);
+      });
+    }
+    loadBoard();
+  </script>
 </body>
 </html>
