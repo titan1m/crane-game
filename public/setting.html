@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Crane Error Quiz</title>
+  <link rel="stylesheet" href="script.css">
+</head>
+<body>
+  <div class="container">
+    <h1>⚙ Settings</h1>
+    <label>Difficulty:
+      <select id="difficulty">
+        <option>Easy</option>
+        <option>Medium</option>
+        <option>Hard</option>
+      </select>
+    </label><br><br>
+    <label><input type="checkbox" id="timer" checked> Enable Timer</label><br>
+    <label><input type="checkbox" id="vibrate" checked> Enable Vibration</label><br><br>
+    <button class="option-btn" onclick="save()">Save</button>
+    <a href="dashboard.html"><button class="option-btn">Back</button></a>
+  </div>
+  <script>
+    function save(){
+      localStorage.setItem("difficulty", document.getElementById("difficulty").value);
+      localStorage.setItem("timer", document.getElementById("timer").checked);
+      localStorage.setItem("vibrate", document.getElementById("vibrate").checked);
+      alert("Settings saved!");
+    }
+  </script>
+</body>
+</html>
