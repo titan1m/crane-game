@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <link rel="stylesheet" href="script.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Leaderboard</h2>
+    <div id="leaderboardList"></div>
+    <button onclick="location.href='dashboard.html'">Back to Dashboard</button>
+  </div>
+
+  <script>
+    const list = document.getElementById("leaderboardList");
+
+    fetch("/leaderboard")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach((user, index)=>{
+        const div = document.createElement("div");
+        div.textContent = `${index+1}. ${user.username} - ${user.score} points`;
+        list.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
