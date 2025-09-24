@@ -1,4 +1,3 @@
-// ---------------- Quiz Data ----------------
 const questions = [
   {
     question: "What does a boom overload error indicate in a mobile crane?",
@@ -52,23 +51,21 @@ const questions = [
   }
 ];
 
-// ---------------- Variables ----------------
 let currentQuestion = 0;
 let score = 0;
-let lives = 3;
+let lives = parseInt(localStorage.getItem("lives")) || 3;
 let streak = 0;
 let userId = localStorage.getItem("userId");
-let timer = 15;
+let timer = 15; 
 let timerInterval;
 
-// ---------------- DOM Elements ----------------
 const questionText = document.getElementById("questionText");
 const optionsDiv = document.getElementById("options");
 const status = document.getElementById("status");
 const timerFill = document.getElementById("timerFill");
 const lifelineBtn = document.getElementById("lifelineBtn");
 
-// ---------------- Display Question ----------------
+// Display question
 function displayQuestion(){
   if(currentQuestion >= questions.length){
     endQuiz();
@@ -81,7 +78,7 @@ function displayQuestion(){
     const btn = document.createElement("button");
     btn.classList.add("option-btn");
     btn.textContent = opt;
-    btn.onclick = ()=>checkAnswer(opt);
+    btn.onclick = ()=>checkAnswer(opt, btn);
     optionsDiv.appendChild(btn);
   });
   timer = 15;
@@ -90,7 +87,7 @@ function displayQuestion(){
   timerInterval = setInterval(updateTimer, 1000);
 }
 
-// ---------------- Timer ----------------
+// Timer countdown
 function updateTimer(){
   timer--;
   timerFill.style.width = (timer/15*100) + "%";
@@ -100,21 +97,33 @@ function updateTimer(){
   }
 }
 
-// ---------------- Check Answer ----------------
-function checkAnswer(option){
+// Check answer with popups
+function checkAnswer(option, btn){
   clearInterval(timerInterval);
   const correct = questions[currentQuestion].answer;
   if(option === correct){
     score++;
     streak++;
-    alert("✅ Correct!");
+    btn.style.background = "linear-gradient(45deg,#4CAF50,#81C784)";
+    setTimeout(()=>{
+      alert("✅ Correct!");
+      nextQuestion();
+    }, 200);
   } else {
     streak = 0;
     lives--;
-    alert(`❌ Wrong! Correct answer: ${correct}`);
+    btn.style.background = "linear-gradient(45deg,#F44336,#E57373)";
+    setTimeout(()=>{
+      alert(`❌ Wrong! Correct answer: ${correct}`);
+      nextQuestion();
+    }, 200);
   }
   updateStatus();
-  if(lives<=0){
+}
+
+// Next question
+function nextQuestion(){
+  if(lives <= 0){
     endQuiz();
     return;
   }
@@ -122,13 +131,14 @@ function checkAnswer(option){
   displayQuestion();
 }
 
-// ---------------- Update Status ----------------
+// Update score/lives display
 function updateStatus(){
   status.textContent = `Score: ${score} | Lives: ${lives} | Streak: ${streak}`;
 }
 
-// ---------------- Lifeline ----------------
+// Lifeline glow
 lifelineBtn.addEventListener("click", ()=>{
+  lifelineBtn.style.boxShadow = "0 0 25px #ff416c";
   const q = questions[currentQuestion];
   const correct = q.answer;
   const wrongOptions = q.options.filter(opt=>opt!==correct);
@@ -140,7 +150,7 @@ lifelineBtn.addEventListener("click", ()=>{
   }
 });
 
-// ---------------- End Quiz ----------------
+// End quiz
 function endQuiz(){
   alert(`Game Over!\nScore: ${score}`);
   fetch("/update-score",{
@@ -150,6 +160,6 @@ function endQuiz(){
   }).then(()=> window.location.href="dashboard.html");
 }
 
-// ---------------- Initialize ----------------
+// Initialize
 updateStatus();
 displayQuestion();
