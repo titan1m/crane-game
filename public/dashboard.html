@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Crane Error Quiz</title>
+  <link rel="stylesheet" href="script.css">
 </head>
 <body>
-<div class="container">
-  <h2>Welcome <span id="username"></span></h2>
-  <div class="dashboard-buttons">
-    <button onclick="startQuiz()">Start Quiz</button>
-    <button onclick="viewLeaderboard()">Leaderboard</button>
-    <button onclick="viewAchievements()">Achievements</button>
-    <button onclick="logout()">Logout</button>
+  <div class="container center">
+    <h1>📊 Dashboard</h1>
+    <p id="welcome"></p>
+    <a href="quiz.html"><button class="option-btn">Start Quiz</button></a>
+    <a href="profile.html"><button class="option-btn">Profile</button></a>
+    <a href="leaderboard.html"><button class="option-btn">Leaderboard</button></a>
+    <a href="settings.html"><button class="option-btn">Settings</button></a>
+    <a href="index.html"><button class="option-btn">Logout</button></a>
   </div>
-</div>
-<script src="dashboard.js"></script>
+  <script>
+    document.getElementById("welcome").innerText =
+      "Welcome, " + (localStorage.getItem("username")||"Guest");
+  </script>
 </body>
 </html>
