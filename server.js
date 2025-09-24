@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("MongoDB connected"))
-.catch(err=>console.error(err));
+.catch(err=>console.error("MongoDB connection error:", err));
 
 // User schema
 const userSchema = new mongoose.Schema({
@@ -71,6 +71,62 @@ app.post("/login", async (req, res) => {
       achievements: user.achievements,
       score: user.score
     });
+  } catch(err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Update score and achievements
+app.post("/update-score", async (req, res) => {
+  try {
+    const { userId, score, streak } = req.body;
+    const user = await User.findById(userId);
+    if(!user) return res.status(404).json({ message: "User not found" });
+
+    user.score = Math.max(score, user.score);
+    if(streak > user.achievements.streaks) user.achievements.streaks = streak;
+    if(score > user.achievements.maxScore) user.achievements.maxScore = score;
+    user.achievements.completedQuizzes += 1;
+
+    await user.save();
+    res.json({ message: "Score updated" });
+  } catch(err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Leaderboard
+app.get("/leaderboard", async (req, res) => {
+  try {
+    const top = await User.find().sort({ score: -1 }).limit(5);
+    res.json(top);
+  } catch(err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get user profile
+app.get("/user/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if(!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch(err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Update user profile
+app.put("/user/:id", async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    const user = await User.findById(req.params.id);
+    if(!user) return res.status(404).json({ message: "User not found" });
+
+    user.username = username;
+    user.email = email;
+    await user.save();
+    res.json({ message: "Profile updated" });
   } catch(err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
