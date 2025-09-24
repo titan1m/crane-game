@@ -8,14 +8,6 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  overflow: hidden;
-  animation: bgAnimation 15s ease infinite;
-}
-
-@keyframes bgAnimation {
-  0% {background-position:0% 50%;}
-  50% {background-position:100% 50%;}
-  100% {background-position:0% 50%;}
 }
 
 .container {
@@ -25,15 +17,13 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   text-align: center;
   width: 90%;
-  max-width: 550px;
+  max-width: 600px;
   animation: fadeIn 1s ease;
 }
 
-/* ---------------- Headings ---------------- */
 h2 {
   margin-bottom: 20px;
   color: #333;
-  text-shadow: 1px 1px 5px #2575fc;
 }
 
 /* ---------------- Forms ---------------- */
@@ -59,25 +49,15 @@ button {
   border: none;
   padding: 12px 25px;
   margin: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
   transition: all 0.3s ease;
 }
 
 button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(0,0,0,0.3), 0 0 20px #2575fc;
-}
-
-/* ---------------- Links ---------------- */
-a {
-  text-decoration: none;
-  color: #2575fc;
-}
-
-a:hover {
-  text-decoration: underline;
+  transform: scale(1.08);
+  box-shadow: 0 0 15px #2575fc, 0 0 30px #6a11cb;
 }
 
 /* ---------------- Quiz Timer Bar ---------------- */
@@ -88,37 +68,32 @@ a:hover {
   border-radius: 10px;
   margin: 15px 0;
   overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
 }
 
 #timerFill {
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, #6a11cb, #2575fc);
-  transition: width 1s linear, background 1s linear;
-  border-radius: 10px;
+  transition: width 1s linear;
+  box-shadow: 0 0 10px #2575fc;
 }
 
-/* ---------------- Lifeline ---------------- */
-#lifelineBtn {
+/* ---------------- Lifeline Buttons ---------------- */
+.lifeline-btn {
   background: linear-gradient(45deg,#ff416c,#ff4b2b);
   color: white;
   padding: 12px 25px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: bold;
-  cursor: pointer;
-  transition: 0.5s;
-  animation: pulse 2s infinite;
+  margin: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px #ff416c;
 }
 
-#lifelineBtn:hover {
-  box-shadow: 0 0 30px #ff416c;
+.lifeline-btn:hover {
+  box-shadow: 0 0 25px #ff416c, 0 0 50px #ff4b2b;
   transform: scale(1.1);
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 10px #ff416c; }
-  50% { box-shadow: 0 0 25px #ff416c; }
-  100% { box-shadow: 0 0 10px #ff416c; }
 }
 
 /* ---------------- Status ---------------- */
@@ -126,7 +101,7 @@ a:hover {
   margin-top: 15px;
   font-weight: bold;
   font-size: 18px;
-  text-shadow: 1px 1px 2px #6a11cb;
+  color: #333;
 }
 
 /* ---------------- Animations ---------------- */
@@ -139,43 +114,51 @@ a:hover {
 .option-btn {
   display: block;
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 12px;
   border: 1px solid #ccc;
   background: #f3f3f3;
   cursor: pointer;
+  font-size: 16px;
   transition: 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .option-btn:hover {
-  background: linear-gradient(45deg,#6a11cb,#2575fc);
+  background: #74ebd5;
   transform: scale(1.03);
-  color: white;
-  box-shadow: 0 0 15px #6a11cb;
+  box-shadow: 0 0 15px #74ebd5;
 }
 
-/* ---------------- Correct/Wrong Feedback ---------------- */
-.feedback {
+/* ---------------- Correct / Wrong popup ---------------- */
+.popup {
   position: fixed;
-  top: 20px;
+  top: 20%;
   left: 50%;
   transform: translateX(-50%);
-  padding: 15px 30px;
-  border-radius: 10px;
-  color: #fff;
+  background: rgba(255,255,255,0.95);
+  padding: 20px 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  font-size: 20px;
   font-weight: bold;
-  font-size: 18px;
-  z-index: 999;
+  z-index: 1000;
   opacity: 0;
-  animation: fadeInOut 1.5s forwards;
+  transition: opacity 0.5s ease, top 0.5s ease;
 }
 
-.correct { background: #4CAF50; }
-.wrong { background: #F44336; }
+.popup.show {
+  opacity: 1;
+  top: 30%;
+}
 
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translate(-50%, -20px); }
-  20%, 80% { opacity: 1; transform: translate(-50%, 0); }
-  100% { opacity: 0; transform: translate(-50%, -20px); }
+.popup.correct {
+  border: 2px solid #4CAF50;
+  color: #4CAF50;
+}
+
+.popup.wrong {
+  border: 2px solid #F44336;
+  color: #F44336;
 }
