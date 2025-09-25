@@ -1,0 +1,40 @@
+<!-- This goes in public/profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizApp - Profile</title>
+    <link rel="stylesheet" href="script.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">QuizApp</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="quiz.html">Play Quiz</a></li>
+                <li><a href="leaderboard.html">Leaderboard</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <span class="user-name"></span>
+                <a href="profile.html" class="btn btn-secondary">Profile</a>
+                <button onclick="quizApp.logout()" class="btn btn-primary">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h1>User Profile</h1>
+            <div id="profile-info">
+                <!-- Profile information will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
