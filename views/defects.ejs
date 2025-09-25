@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defects - CraneCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-crane me-2"></i>CraneCare Pro
+            </a>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="list-group">
+                    <a href="/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/defects" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Defects
+                    </a>
+                </div>
+
+                <!-- Filters -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6>Filters</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="all">All</option>
+                                <option value="pending">Pending</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Severity</label>
+                            <select class="form-select" id="severityFilter">
+                                <option value="all">All</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Defect Reports</h4>
+                        <div>
+                            <span class="badge bg-danger me-2">Critical: <%= errors.filter(e => e.severity === 'critical').length %></span>
+                            <span class="badge bg-warning">Pending: <%= errors.filter(e => e.status === 'pending').length %></span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <% if (errors.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="defectsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Crane ID</th>
+                                            <th>Error Code</th>
+                                            <th>Description</th>
+                                            <th>Severity</th>
+                                            <th>Reported By</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% errors.forEach(error => { %>
+                                            <tr data-status="<%= error.status %>" data-severity="<%= error.severity %>">
+                                                <td><%= error.craneId %></td>
+                                                <td><strong><%= error.errorCode %></strong></td>
+                                                <td><%= error.description %></td>
+                                                <td>
+                                                    <span class="badge bg-<%= 
+                                                        error.severity === 'critical' ? 'danger' : 
+                                                        error.severity === 'high' ? 'warning' : 
+                                                        error.severity === 'medium' ? 'info' : 'secondary' 
+                                                    %>">
+                                                        <%= error.severity %>
+                                                    </span>
+                                                </td>
+                                                <td><%= error.reportedBy %></td>
+                                                <td><%= error.dateReported.toLocaleDateString() %></td>
+                                                <td>
+                                                    <span class="badge bg-<%= error.status === 'pending' ? 'warning' : 'success' %>">
+                                                        <%= error.status %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <% if (error.status === 'pending') { %>
+                                                        <button class="btn btn-sm btn-success">Mark Resolved</button>
+                                                    <% } %>
+                                                    <button class="btn btn-sm btn-info">View Details</button>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <h5>No Defects Found</h5>
+                                <p class="text-muted">All systems are operating normally.</p>
+                                <a href="/manual-entry" class="btn btn-primary">Report New Error</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+        document.getElementById('severityFilter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const severityFilter = document.getElementById('severityFilter').value;
+            const rows = document.querySelectorAll('#defectsTable tbody tr');
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const severity = row.getAttribute('data-severity');
+
+                const statusMatch = statusFilter === 'all' || status === statusFilter;
+                const severityMatch = severityFilter === 'all' || severity === severityFilter;
+
+                row.style.display = statusMatch && severityMatch ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
