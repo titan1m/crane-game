@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Cranes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+    .crane-card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>All Cranes Data</h1>
+
+  <!-- Data will be injected here -->
+  <div id="craneData"></div>
+
+  <script>
+  async function loadCranes() {
+    try {
+      const res = await fetch("/api/cranes"); // Backend API call
+      const data = await res.json();
+      console.log(data);
+
+      let container = document.getElementById("craneData");
+      container.innerHTML = data.map(c => `
+        <div class="crane-card">
+          <h3>${c.model} (${c.code})</h3>
+          <p>${c.description}</p>
+        </div>
+      `).join("");
+    } catch (err) {
+      console.error("Error loading cranes:", err);
+    }
+  }
+  window.onload = loadCranes;
+  </script>
+</body>
+</html>
