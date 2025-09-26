@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Error Finder Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            min-height: 600px;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-section {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: pulse 8s infinite linear;
+        }
+        
+        @keyframes pulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .action-section {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .crane-icon {
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            opacity: 0.1;
+            font-size: 300px;
+            z-index: 1;
+        }
+        
+        .features {
+            display: flex;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .feature {
+            flex: 1;
+            min-width: 150px;
+            margin: 0.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 992px) {
+            .card {
+                flex-direction: column;
+            }
+            
+            .hero-section {
+                padding: 2rem;
+            }
+            
+            .action-section {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <div class="card">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="logo">
+                        <div class="logo-icon">CE</div>
+                        <h2>CraneError Pro</h2>
+                    </div>
+                    <h1>Advanced Crane Diagnostics</h1>
+                    <p class="subtitle">Identify, troubleshoot, and resolve crane issues with our comprehensive error finding system. Streamline your maintenance workflow with instant access to technical solutions.</p>
+                    
+                    <div class="features">
+                        <div class="feature animate__animated animate__fadeInUp animate__delay-1s">
+                            <div class="feature-icon">🔍</div>
+                            <div>Quick Search</div>
+                        </div>
+                        <div class="feature animate__animated animate__fadeInUp animate__delay-2s">
+                            <div class="feature-icon">📱</div>
+                            <div>QR Scanning</div>
+                        </div>
+                        <div class="feature animate__animated animate__fadeInUp animate__delay-3s">
+                            <div class="feature-icon">📊</div>
+                            <div>Detailed Reports</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="crane-icon">🏗️</div>
+            </div>
+            
+            <div class="action-section">
+                <h2 class="animate__animated animate__fadeIn">Get Started</h2>
+                <p class="subtitle animate__animated animate__fadeIn animate__delay-1s">Login for full access or continue as guest</p>
+                
+                <div class="animate__animated animate__fadeIn animate__delay-2s">
+                    <a href="login.html" class="btn btn-primary">Login</a>
+                    <button onclick="guestAccess()" class="btn btn-outline">Guest Access</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function guestAccess() {
+            localStorage.setItem('auth', 'guest');
+            // Add animation before redirect
+            document.querySelector('.card').classList.add('animate__animated', 'animate__fadeOut');
+            setTimeout(() => {
+                window.location.href = 'entry-mode.html';
+            }, 500);
+        }
+    </script>
+</body>
+</html>
