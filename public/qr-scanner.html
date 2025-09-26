@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Scanner - Crane Error Finder Pro</title>
-<link rel="stylesheet" href="css/style.css">
-<script src="js/main.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Scanner - Crane Error Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#f5f7fa,#c3cfe2); min-height:100vh; display:flex; justify-content:center; align-items:center; margin:0; }
+    .container { text-align:center; max-width:500px; width:100%; padding:2rem; background:#fff; border-radius:1rem; box-shadow:0 0 20px rgba(0,0,0,0.1); }
+    h1{ color:#4361ee; margin-bottom:1rem; }
+    video { width:100%; border-radius:1rem; }
+    .message { margin-top:1rem; font-size:0.9rem; color:salmon; }
+    .back { margin-top:1rem; display:block; cursor:pointer; color:#4361ee; text-decoration:underline; }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h1>QR Scanner</h1>
-    <p class="subtitle">Scan crane QR code to view error details</p>
+  <div class="container">
+    <h1>QR Scanner (Simulated)</h1>
+    <video id="preview" autoplay></video>
+    <div class="message" id="message">Simulating QR scan... Enter code manually for now.</div>
+    <span class="back" onclick="window.location.href='entry-mode.html'">← Back</span>
+  </div>
 
-    <button class="btn btn-primary" onclick="mockQRScan('infoBoxQR','msgBoxQR')">Scan QR Code</button>
-    <div id="msgBoxQR" class="message"></div>
-    <div id="infoBoxQR" class="card" style="display:none;"></div>
-
-    <div style="text-align:center; margin-top:1rem;">
-        <a href="entry-mode.html" class="btn btn-primary">Back to Entry Mode</a>
-    </div>
-</div>
+  <script>
+    // For frontend-only, we simulate QR scan by prompting user
+    setTimeout(()=>{
+      const code = prompt("Enter scanned Crane Code (e.g., CRN-2023-001):");
+      if(code){
+        localStorage.setItem('lastCraneCode', code.toUpperCase());
+        window.location.href = 'dashboard.html';
+      }
+    },1000);
+  </script>
 </body>
 </html>
