@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Crane Error Finder Pro</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+        <input type="text" name="username" placeholder="Email or Username" class="input-field" required>
+        <input type="password" name="password" placeholder="Password" class="input-field" required>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <div id="loginMsg" class="message"></div>
+        <p class="message">No account? <a href="register.html">Register here</a></p>
+    </form>
+</div>
+
+<script>
+loginFormHandler('loginForm','loginMsg');
+</script>
+</body>
+</html>
