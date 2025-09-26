@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Mode - Crane Error Finder Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .options-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .option-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .option-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover::after {
+            height: 10px;
+        }
+        
+        .option-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover .option-icon {
+            transform: scale(1.1);
+        }
+        
+        .option-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .option-desc {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 3rem;
+            color: var(--dark);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .options-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">CE</div>
+                <h2>CraneError Pro</h2>
+            </div>
+            <h1>Select Entry Mode</h1>
+            <p class="subtitle">Choose how you want to identify the crane to find error information</p>
+        </div>
+        
+        <div class="options-container">
+            <div class="option-card animate__animated animate__fadeInLeft" onclick="window.location.href='qr-scanner.html'">
+                <div class="option-icon">📷</div>
+                <h3 class="option-title">QR Scanner</h3>
+                <p class="option-desc">Scan the crane's QR code for instant identification and error lookup</p>
+                <button class="btn btn-primary">Select</button>
+            </div>
+            
+            <div class="option-card animate__animated animate__fadeInRight" onclick="window.location.href='manual-entry.html'">
+                <div class="option-icon">⌨️</div>
+                <h3 class="option-title">Manual Entry</h3>
+                <p class="option-desc">Enter the crane ID manually if QR code is unavailable or damaged</p>
+                <button class="btn btn-primary">Select</button>
+            </div>
+        </div>
+        
+        <div class="back-btn animate__animated animate__fadeIn animate__delay-1s" onclick="window.location.href='index.html'">
+            ← Back to Home
+        </div>
+    </div>
+
+    <script>
+        // Add hover effect with JavaScript for better performance
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+                this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.15)';
+                this.querySelector('.option-icon').style.transform = 'scale(1.1)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.1)';
+                this.querySelector('.option-icon').style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
