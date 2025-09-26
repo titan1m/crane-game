@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Scanner - Crane Error Finder Pro</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <h1>QR Scanner</h1>
+    <p class="subtitle">Scan crane QR code to view error details</p>
+
+    <button class="btn btn-primary" onclick="mockQRScan('infoBoxQR','msgBoxQR')">Scan QR Code</button>
+    <div id="msgBoxQR" class="message"></div>
+    <div id="infoBoxQR" class="card" style="display:none;"></div>
+
+    <div style="text-align:center; margin-top:1rem;">
+        <a href="entry-mode.html" class="btn btn-primary">Back to Entry Mode</a>
+    </div>
+</div>
+</body>
+</html>
