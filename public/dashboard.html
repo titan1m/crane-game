@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Crane Error Finder Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --danger: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.critical {
+            border-top: 4px solid var(--danger);
+        }
+        
+        .stat-card.warning {
+            border-top: 4px solid var(--warning);
+        }
+        
+        .stat-card.success {
+            border-top: 4px solid var(--success);
+        }
+        
+        .stat-card.primary {
+            border-top: 4px solid var(--primary);
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .stat-change.positive {
+            color: #28a745;
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .critical-errors {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .error-table th, .error-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .error-table th {
+            font-weight: 600;
+            color: var(--primary);
+            background: #f8f9fa;
+        }
+        
+        .error-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .severity-high {
+            background: rgba(247, 37, 133, 0.1);
+            color: var(--danger);
+        }
+        
+        .severity-medium {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+        
+        .severity-low {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">CE</div>
+            <h2>CraneError Pro</h2>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link active">📊 Dashboard</a>
+            <a href="entry-mode.html" class="nav-link">🔍 Error Lookup</a>
+            <a href="reports.html" class="nav-link">📄 Reports</a>
+            <a href="settings.html" class="nav-link">⚙️ Settings</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="dashboard-header">
+            <div>
+                <h1>Error Analytics Dashboard</h1>
+                <p class="subtitle">Monitor crane errors and maintenance activities</p>
+            </div>
+            <div class="date-filter">
+                <select id="timeRange" class="form-control">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last Quarter</option>
+                    <option value="365">Last Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+                <button class="btn btn-primary" style="padding: 8px 15px;">
+                    Apply
+                </button>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card critical">
+                <div class="stat-title">🚨 Critical Errors</div>
+                <div class="stat-value">18</div>
+                <div class="stat-change negative">
+                    <span>↑ 12% from last period</span>
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-title">⚠️ High Priority Errors</div>
+                <div class="stat-value">42</div>
+                <div class="stat-change positive">
+                    <span>↓ 8% from last period</span>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-title">✅ Errors Resolved</div>
+                <div class="stat-value">156</div>
+                <div class="stat-change positive">
+                    <span>↑ 23% from last period</span>
+                </div>
+            </div>
+            
+            <div class="stat-card primary">
+                <div class="stat-title">🏗️ Cranes Monitored</div>
+                <div class="stat-value">27</div>
+                <div class="stat-change">
+                    <span>No change</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Errors by Type</h3>
+                <div class="chart-container">
+                    <canvas id="errorTypeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Monthly Error Trend</h3>
+                <div class="chart-container">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="critical-errors">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3>🚨 Critical Errors Needing Attention</h3>
+                <button class="btn btn-primary">Export Report</button>
+            </div>
+            
+            <table class="error-table">
+                <thead>
+                    <tr>
+                        <th>Crane ID</th>
+                        <th>Error Code</th>
+                        <th>Description</th>
+                        <th>Severity</th>
+                        <th>Days Open</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CRN-2023-015</td>
+                        <td>E-402</td>
+                        <td>Structural stress exceeding limits</td>
+                        <td><span class="severity-badge severity-high">Critical</span></td>
+                        <td>14</td>
+                        <td><button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">View Details</button></td>
+                    </tr>
+                    <tr>
+                        <td>CRN-2023-008</td>
+                        <td>E-305</td>
+                        <td>Hydraulic system failure</td>
+                        <td><span class="severity-badge severity-high">Critical</span></td>
+                        <td>9</td>
+                        <td><button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">View Details</button></td>
+                    </tr>
+                    <tr>
+                        <td>CRN-2023-022</td>
+                        <td>E-210</td>
+                        <td>Brake system malfunction</td>
+                        <td><span class="severity-badge severity-high">Critical</span></td>
+                        <td>5</td>
+                        <td><button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">View Details</button></td>
+                    </tr>
+                    <tr>
+                        <td>CRN-2023-003</td>
+                        <td>E-501</td>
+                        <td>Load sensor calibration failure</td>
+                        <td><span class="severity-badge severity-high">Critical</span></td>
+                        <td>3</td>
+                        <td><button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">View Details</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="chart-card">
+            <h3>Error Resolution Time</h3>
+            <div class="chart-container">
+                <canvas id="resolutionTimeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Error Type Chart
+            const errorTypeCtx = document.getElementById('errorTypeChart').getContext('2d');
+            const errorTypeChart = new Chart(errorTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hydraulic', 'Electrical', 'Mechanical', 'Structural', 'Sensor', 'Other'],
+                    datasets: [{
+                        data: [35, 28, 22, 10, 15, 5],
+                        backgroundColor: [
+                            '#4361ee',
+                            '#4cc9f0',
+                            '#4895ef',
+                            '#3f37c9',
+                            '#f72585',
+                            '#6c757d'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+            
+            // Monthly Trend Chart
+            const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+            const monthlyTrendChart = new Chart(monthlyTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [
+                        {
+                            label: 'Total Errors',
+                            data: [45, 52, 68, 74, 62, 58, 71],
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Critical Errors',
+                            data: [5, 8, 12, 15, 10, 14, 18],
+                            borderColor: '#f72585',
+                            backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Resolution Time Chart
+            const resolutionTimeCtx = document.getElementById('resolutionTimeChart').getContext('2d');
+            const resolutionTimeChart = new Chart(resolutionTimeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['<1 day', '1-3 days', '3-7 days', '1-2 weeks', '>2 weeks'],
+                    datasets: [{
+                        label: 'Resolution Time',
+                        data: [65, 42, 28, 15, 8],
+                        backgroundColor: [
+                            '#4cc9f0',
+                            '#4895ef',
+                            '#4361ee',
+                            '#3f37c9',
+                            '#f72585'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Errors'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time to Resolution'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Time range filter
+            document.querySelector('.date-filter button').addEventListener('click', function() {
+                const timeRange = document.getElementById('timeRange').value;
+                // Show loading state
+                this.innerHTML = '<span class="loader"></span> Loading...';
+                
+                // Simulate data loading
+                setTimeout(() => {
+                    this.textContent = 'Apply';
+                    // In a real app, you would update the charts with new data
+                    alert(`Data filtered for ${getTimeRangeText(timeRange)}`);
+                }, 1000);
+            });
+            
+            function getTimeRangeText(value) {
+                switch(value) {
+                    case '7': return 'Last 7 Days';
+                    case '30': return 'Last 30 Days';
+                    case '90': return 'Last Quarter';
+                    case '365': return 'Last Year';
+                    default: return 'Custom Range';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
