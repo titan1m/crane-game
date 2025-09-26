@@ -1,7 +1,6 @@
 {
   "name": "crane-error-finder-pro",
   "version": "1.0.0",
-  "description": "Crane Error Finder Pro - Fullstack Crane Error Detection App",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -11,13 +10,12 @@
   "dependencies": {
     "express": "^4.18.2",
     "mongoose": "^7.5.0",
-    "dotenv": "^16.4.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "engines": {"node": ">=18.0.0"}
 }
+
