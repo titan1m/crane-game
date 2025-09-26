@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Information - Crane Error Finder Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --danger: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-code {
+            background: var(--warning);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        .severity {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .severity.high { background: #fee2e2; color: #dc2626; }
+        .severity.medium { background: #fef3c7; color: #d97706; }
+        .severity.low { background: #d1fae5; color: #059669; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">CE</div>
+            <h2>CraneError Pro</h2>
+        </div>
+        <button class="btn" onclick="window.location.href='entry-mode.html'">New Search</button>
+    </div>
+    
+    <div class="container">
+        <div id="content">
+            <div class="status-card">
+                <div class="loader"></div>
+                <p style="text-align: center;">Loading crane information...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get crane ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const craneCode = urlParams.get('craneId');
+        
+        // Load crane data
+        async function loadCraneData() {
+            const contentDiv = document.getElementById('content');
+            
+            if (!craneCode) {
+                contentDiv.innerHTML = `
+                    <div class="status-card">
+                        <h2>Error</h2>
+                        <p>No crane ID provided. Please go back and try again.</p>
+                        <button class="btn" onclick="window.location.href='manual-entry.html'">Manual Entry</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/crane/${craneCode}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Display crane data
+                    contentDiv.innerHTML = `
+                        <div class="status-card">
+                            <h1>Crane ${data.code} <span class="error-code">${data.code}</span></h1>
+                            <p><strong>Model:</strong> ${data.model}</p>
+                            <p><strong>Severity:</strong> <span class="severity ${data.severity}">${data.severity}</span></p>
+                            <p><strong>Description:</strong> ${data.description}</p>
+                            
+                            ${data.steps && data.steps.length > 0 ? `
+                                <h3>Troubleshooting Steps:</h3>
+                                <ol>
+                                    ${data.steps.map(step => `
+                                        <li>
+                                            <strong>${step.title}</strong><br>
+                                            ${step.description}
+                                        </li>
+                                    `).join('')}
+                                </ol>
+                            ` : ''}
+                            
+                            <div style="margin-top: 2rem;">
+                                <button class="btn" onclick="window.print()">Print Report</button>
+                                <button class="btn" onclick="window.location.href='manual-entry.html'">New Search</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    contentDiv.innerHTML = `
+                        <div class="status-card">
+                            <h2>Crane Not Found</h2>
+                            <p>No information found for crane: <strong>${craneCode}</strong></p>
+                            <p>Please check the crane ID and try again.</p>
+                            <button class="btn" onclick="window.location.href='manual-entry.html'">Try Manual Entry</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                contentDiv.innerHTML = `
+                    <div class="status-card">
+                        <h2>Connection Error</h2>
+                        <p>Could not connect to server. Please try again later.</p>
+                        <button class="btn" onclick="window.location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load data when page loads
+        window.onload = loadCraneData;
+    </script>
+</body>
+</html>
