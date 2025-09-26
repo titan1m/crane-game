@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Crane Error Finder Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reuse styles from dashboard with additions */
+        
+        .reports-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .report-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .report-title {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .report-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .report-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+        
+        .report-stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">CE</div>
+            <h2>CraneError Pro</h2>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+            <a href="entry-mode.html" class="nav-link">🔍 Error Lookup</a>
+            <a href="reports.html" class="nav-link active">📄 Reports</a>
+            <a href="settings.html" class="nav-link">⚙️ Settings</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="dashboard-header">
+            <div>
+                <h1>Monthly Error Reports</h1>
+                <p class="subtitle">Historical error analysis and resolution reports</p>
+            </div>
+            <button class="btn btn-primary">
+                + Generate New Report
+            </button>
+        </div>
+        
+        <div class="date-filter">
+            <select id="reportYear" class="form-control">
+                <option value="2023" selected>2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+            </select>
+            <button class="btn btn-primary" style="padding: 8px 15px;">
+                Filter
+            </button>
+        </div>
+        
+        <div class="reports-container">
+            <!-- June 2023 Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">June 2023 Report</div>
+                    <div class="report-date">Generated: Jul 2, 2023</div>
+                </div>
+                <p>Monthly error analysis for all cranes with resolution metrics and maintenance recommendations.</p>
+                
+                <div class="report-stats">
+                    <div class="report-stat">
+                        <div class="stat-number">71</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">18</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">92%</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                </div>
+                
+                <div class="report-actions">
+                    <button class="btn btn-primary btn-sm">View</button>
+                    <button class="btn btn-outline btn-sm">PDF</button>
+                    <button class="btn btn-outline btn-sm">Excel</button>
+                </div>
+            </div>
+            
+            <!-- May 2023 Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">May 2023 Report</div>
+                    <div class="report-date">Generated: Jun 3, 2023</div>
+                </div>
+                <p>Monthly error analysis showing improved resolution times after new procedures implemented.</p>
+                
+                <div class="report-stats">
+                    <div class="report-stat">
+                        <div class="stat-number">62</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                </div>
+                
+                <div class="report-actions">
+                    <button class="btn btn-primary btn-sm">View</button>
+                    <button class="btn btn-outline btn-sm">PDF</button>
+                    <button class="btn btn-outline btn-sm">Excel</button>
+                </div>
+            </div>
+            
+            <!-- April 2023 Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">April 2023 Report</div>
+                    <div class="report-date">Generated: May 1, 2023</div>
+                </div>
+                <p>First month with new monitoring system showing higher error detection rates.</p>
+                
+                <div class="report-stats">
+                    <div class="report-stat">
+                        <div class="stat-number">74</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">88%</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                </div>
+                
+                <div class="report-actions">
+                    <button class="btn btn-primary btn-sm">View</button>
+                    <button class="btn btn-outline btn-sm">PDF</button>
+                    <button class="btn btn-outline btn-sm">Excel</button>
+                </div>
+            </div>
+            
+            <!-- Q1 2023 Summary -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">Q1 2023 Summary</div>
+                    <div class="report-date">Generated: Apr 5, 2023</div>
+                </div>
+                <p>Quarterly summary showing seasonal patterns in crane errors and maintenance needs.</p>
+                
+                <div class="report-stats">
+                    <div class="report-stat">
+                        <div class="stat-number">165</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">25</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number">91%</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                </div>
+                
+                <div class="report-actions">
+                    <button class="btn btn-primary btn-sm">View</button>
+                    <button class="btn btn-outline btn-sm">PDF</button>
+                    <button class="btn btn-outline btn-sm">Excel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
