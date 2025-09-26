@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - Crane Error Finder Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .scanner-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            padding-top: 100px;
+        }
+        
+        .scanner-frame {
+            width: 100%;
+            max-width: 500px;
+            height: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        #scanner {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .scan-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        .scanner-guide {
+            text-align: center;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+            margin: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-outline:hover {
+            background: white;
+            color: var(--dark);
+        }
+        
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+        
+        .result-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .result-card {
+            background: white;
+            color: var(--dark);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .result-overlay.active .result-card {
+            transform: scale(1);
+        }
+        
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .success {
+            color: var(--success);
+        }
+        
+        .error {
+            color: var(--warning);
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .scanner-frame {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header animate__animated animate__fadeIn">
+        <div class="logo">
+            <div class="logo-icon">CE</div>
+            <h2>CraneError Pro</h2>
+        </div>
+        <button class="btn btn-outline" onclick="window.location.href='manual-entry.html'">Manual Entry</button>
+    </div>
+    
+    <div class="scanner-container">
+        <div class="scanner-guide animate__animated animate__fadeIn">
+            <h1>Scan Crane QR Code</h1>
+            <p class="subtitle">Position the QR code within the frame to automatically scan</p>
+        </div>
+        
+        <div class="scanner-frame animate__animated animate__zoomIn">
+            <video id="scanner" playsinline></video>
+            <div class="scan-animation"></div>
+        </div>
+        
+        <div class="action-buttons animate__animated animate__fadeIn animate__delay-1s">
+            <button class="btn btn-primary" onclick="window.location.href='entry-mode.html'">Back</button>
+            <button class="btn btn-outline" onclick="window.location.href='index.html'">Home</button>
+        </div>
+    </div>
+    
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-card">
+            <div class="result-icon success">✓</div>
+            <h2 id="resultTitle">QR Code Scanned</h2>
+            <p id="resultText">Crane ID: <span id="craneIdResult"></span></p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="continueBtn">Continue</button>
+                <button class="btn btn-outline" onclick="hideResult()">Scan Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('scanner');
+        const resultOverlay = document.getElementById('resultOverlay');
+        const craneIdResult = document.getElementById('craneIdResult');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultText = document.getElementById('resultText');
+        const continueBtn = document.getElementById('continueBtn');
+        let scannerActive = true;
+        let scannedCode = null;
+
+        // Access camera
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: "environment",
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.setAttribute("playsinline", true);
+            video.play();
+            requestAnimationFrame(tick);
+        })
+        .catch(function(err) {
+            showError("Camera Error", "Could not access camera: " + err);
+        });
+
+        function tick() {
+            if (!scannerActive) return;
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    scannedCode = code.data;
+                    showResult(scannedCode);
+                }
+            }
+            
+            requestAnimationFrame(tick);
+        }
+
+        function showResult(code) {
+            scannerActive = false;
+            craneIdResult.textContent = code;
+            resultOverlay.classList.add('active');
+            
+            // Stop camera stream
+            const stream = video.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            continueBtn.onclick = function() {
+                window.location.href = 'error-info.html?craneId=' + encodeURIComponent(code);
+            };
+        }
+
+        function showError(title, message) {
+            resultTitle.textContent = title;
+            resultText.textContent = message;
+            document.querySelector('.result-icon').className = 'result-icon error';
+            document.querySelector('.result-icon').textContent = '✗';
+            resultOverlay.classList.add('active');
+        }
+
+        function hideResult() {
+            resultOverlay.classList.remove('active');
+            setTimeout(() => {
+                scannerActive = true;
+                // Restart camera
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                    .then(function(stream) {
+                        video.srcObject = stream;
+                        video.play();
+                        requestAnimationFrame(tick);
+                    });
+            }, 500);
+        }
+    </script>
+</body>
+</html>
