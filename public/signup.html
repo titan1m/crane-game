@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - Crane Error Detection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #38bdf8;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    .message {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <input type="text" id="username" placeholder="Email or Username" required />
+      <input type="password" id="password" placeholder="Password (min 6 chars)" required />
+      <button type="submit">Register</button>
+      <div class="message" id="message"></div>
+      <div class="message">Already have an account? <a href="login.html">Login here</a></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const msgBox = document.getElementById('message');
+
+      if (password.length < 6) {
+        msgBox.style.color = 'salmon';
+        msgBox.innerText = '❌ Password must be at least 6 characters';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.status === 201) {
+          msgBox.style.color = 'lightgreen';
+          msgBox.innerText = '✅ Registered successfully. Redirecting...';
+          setTimeout(() => window.location.href = 'login.html', 1500);
+        } else {
+          msgBox.style.color = 'salmon';
+          msgBox.innerText = `❌ ${data.message}`;
+        }
+      } catch (error) {
+        msgBox.style.color = 'salmon';
+        msgBox.innerText = `❌ Server error. Please try again later.`;
+        console.error('Signup Exception:', error);
+      }
+    });
+  </script>
+</body>
+</html>
