@@ -1,80 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Crane Error Finder</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Settings - Crane Error Finder</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2>Crane Error Finder</h2>
-            </div>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="entry-mode.html" class="nav-link">Entry Mode</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <a href="settings.html" class="nav-link active">Settings</a>
-                <a href="#" class="nav-link" onclick="logout()">Logout</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <header class="page-header">
-            <h1>Settings</h1>
-            <p>Manage your account preferences</p>
-        </header>
-
-        <div class="settings-container">
-            <div class="settings-section">
-                <h3>Account Information</h3>
-                <div class="user-info">
-                    <p><strong>Username:</strong> <span id="settingsUsername">Loading...</span></p>
-                    <p><strong>Email:</strong> <span id="settingsEmail">Loading...</span></p>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>Preferences</h3>
-                <div class="preference-item">
-                    <label>
-                        <input type="checkbox" id="notifications" checked>
-                        Enable email notifications
-                    </label>
-                </div>
-                <div class="preference-item">
-                    <label>
-                        <input type="checkbox" id="autoSave" checked>
-                        Auto-save reports
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>Actions</h3>
-                <button onclick="clearUserData()" class="btn btn-warning">Clear Local Data</button>
-                <button onclick="exportUserData()" class="btn btn-info">Export Data</button>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <p>&copy; 2024 Crane Error Finder. All rights reserved.</p>
-    </footer>
-
-    <script src="js/main.js"></script>
-    <script>
-        if (!isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
-
-        // Load user info
-        document.getElementById('settingsUsername').textContent = sessionStorage.getItem('username') || 'User';
-        // Note: Email would typically come from an API call to get user details
-    </script>
+<header>
+    <h1>Settings</h1>
+</header>
+<div class="container">
+    <p>Settings options will be added here (Coming Soon)</p>
+    <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+</div>
 </body>
 </html>
