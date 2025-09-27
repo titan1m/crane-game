@@ -1,71 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crane Error Finder</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Crane Error Finder</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2>Crane Error Finder</h2>
-            </div>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link active">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="entry-mode.html" class="nav-link">Entry Mode</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <a href="settings.html" class="nav-link">Settings</a>
-                <a href="login.html" class="nav-link">Login</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <header class="hero">
-            <h1>Welcome to Crane Error Finder</h1>
-            <p>Quickly identify and resolve crane error codes with our comprehensive database</p>
-            <div class="hero-buttons">
-                <a href="dashboard.html" class="btn btn-primary">Get Started</a>
-                <a href="entry-mode.html" class="btn btn-secondary">Report Error</a>
-            </div>
-        </header>
-
-        <section class="features">
-            <div class="feature-card">
-                <h3>Error Code Database</h3>
-                <p>Access comprehensive information about crane error codes</p>
-            </div>
-            <div class="feature-card">
-                <h3>Quick Search</h3>
-                <p>Find error solutions instantly with our search functionality</p>
-            </div>
-            <div class="feature-card">
-                <h3>QR Code Scanner</h3>
-                <p>Scan QR codes for instant error code recognition</p>
-            </div>
-            <div class="feature-card">
-                <h3>Report Management</h3>
-                <p>Track and manage error reports efficiently</p>
-            </div>
-        </section>
-
-        <section class="quick-search">
-            <h2>Quick Error Code Search</h2>
-            <div class="search-box">
-                <input type="text" id="quickSearch" placeholder="Enter error code (e.g., E001)">
-                <button onclick="quickSearch()" class="btn btn-primary">Search</button>
-            </div>
-            <div id="quickSearchResult" class="search-result"></div>
-        </section>
-    </div>
-
-    <footer class="footer">
-        <p>&copy; 2024 Crane Error Finder. All rights reserved.</p>
-    </footer>
-
-    <script src="js/main.js"></script>
+<header>
+    <h1>Crane Error Finder</h1>
+</header>
+<div class="container">
+    <h2>Login</h2>
+    <form onsubmit="login(event)">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="signup.html">Signup here</a></p>
+</div>
+<script src="js/main.js"></script>
 </body>
 </html>
