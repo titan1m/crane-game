@@ -1,100 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner - Crane Error Finder</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<meta charset="UTF-8">
+<title>QR Scanner - Crane Error Finder</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2>Crane Error Finder</h2>
-            </div>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="entry-mode.html" class="nav-link">Entry Mode</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <a href="settings.html" class="nav-link">Settings</a>
-                <a href="#" class="nav-link" onclick="logout()">Logout</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <header class="page-header">
-            <h1>QR Code Scanner</h1>
-            <p>Scan the QR code from your crane's display panel</p>
-        </header>
-
-        <div class="scanner-container">
-            <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
-            <div id="qr-result" class="scan-result"></div>
-        </div>
-
-        <div class="scanner-actions">
-            <button onclick="startScanner()" class="btn btn-primary">Start Scanner</button>
-            <button onclick="stopScanner()" class="btn btn-secondary">Stop Scanner</button>
-            <a href="manual-entry.html" class="btn btn-info">Manual Entry Instead</a>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <p>&copy; 2024 Crane Error Finder. All rights reserved.</p>
-    </footer>
-
-    <script src="js/main.js"></script>
-    <script>
-        if (!isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
-
-        let html5QrcodeScanner;
-
-        function startScanner() {
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "qr-reader",
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                false
-            );
-
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        }
-
-        function onScanSuccess(decodedText, decodedResult) {
-            document.getElementById('qr-result').innerHTML = `
-                <div class="success-message">
-                    <h3>QR Code Scanned Successfully!</h3>
-                    <p>Error Code: ${decodedText}</p>
-                    <button onclick="lookupErrorCode('${decodedText}')" class="btn btn-primary">
-                        Lookup Error Code
-                    </button>
-                </div>
-            `;
-            stopScanner();
-        }
-
-        function onScanFailure(error) {
-            // Scan failure handled silently
-        }
-
-        function stopScanner() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(error => {
-                    console.error("Failed to clear scanner", error);
-                });
-            }
-        }
-
-        function lookupErrorCode(code) {
-            window.location.href = `manual-entry.html?code=${code}`;
-        }
-
-        // Start scanner automatically
-        window.onload = startScanner;
-    </script>
+<header>
+    <h1>QR Code Scanner</h1>
+</header>
+<div class="container">
+    <h2>Scan QR Code (Simulated)</h2>
+    <input type="text" id="error-code" placeholder="Scan or enter code manually">
+    <button onclick="searchError(event)">Search</button>
+    <div id="error-result"></div>
+    <br>
+    <button onclick="window.location.href='entry-mode.html'">Back</button>
+</div>
+<script src="js/main.js"></script>
 </body>
 </html>
