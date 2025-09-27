@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Mode - Crane Error Finder</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Crane Error Finder</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="entry-mode.html" class="nav-link active">Entry Mode</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+                <a href="#" class="nav-link" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>Error Entry Mode</h1>
+            <p>Choose how you want to enter the error code</p>
+        </header>
+
+        <div class="entry-options">
+            <div class="entry-card" onclick="window.location.href='qr-scanner.html'">
+                <h3>QR Code Scanner</h3>
+                <p>Scan QR code from crane display</p>
+                <button class="btn btn-primary">Use Scanner</button>
+            </div>
+            
+            <div class="entry-card" onclick="window.location.href='manual-entry.html'">
+                <h3>Manual Entry</h3>
+                <p>Enter error code manually</p>
+                <button class="btn btn-secondary">Manual Entry</button>
+            </div>
+        </div>
+
+        <section class="recent-errors">
+            <h2>Recent Error Codes</h2>
+            <div id="recentErrors" class="errors-list"></div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Crane Error Finder. All rights reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        if (!isAuthenticated()) {
+            window.location.href = 'login.html';
+        }
+        loadRecentErrors();
+    </script>
+</body>
+</html>
