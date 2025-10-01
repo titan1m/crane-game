@@ -23,21 +23,44 @@ app.use(session({
     }
 }));
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/craneDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('✅ Connected to MongoDB');
-}).catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-});
+// MongoDB Connection with better error handling
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/craneDB', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error('❌ MongoDB connection error:', error);
+        process.exit(1);
+    }
+};
+
+connectDB();
 
 // User Schema
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    username: { 
+        type: String, 
+        required: [true, 'Username is required'],
+        unique: true,
+        trim: true,
+        minlength: [3, 'Username must be at least 3 characters long']
+    },
+    email: { 
+        type: String, 
+        required: [true, 'Email is required'],
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    },
+    password: { 
+        type: String, 
+        required: [true, 'Password is required'],
+        minlength: [6, 'Password must be at least 6 characters long']
+    },
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -108,48 +131,6 @@ async function seedErrorCodes() {
                     estimatedFixTime: 2,
                     safetyPrecautions: ["Lock out/tag out power sources", "Test all safety systems", "Verify shutdown before working"],
                     commonAffectedModels: ["All models with electronic controls"]
-                },
-                {
-                    errorCode: "E003",
-                    errorType: "Mechanical",
-                    severity: "High",
-                    description: "Boom Extension Mechanism Failure",
-                    symptoms: ["Boom not extending properly", "Unusual noises during extension", "Boom jerky movement"],
-                    causes: ["Worn extension cables", "Damaged hydraulic cylinders", "Misaligned guides", "Bent boom sections"],
-                    solutions: ["Inspect and replace extension cables", "Check hydraulic cylinders", "Realign boom guides", "Inspect boom sections"],
-                    immediateActions: ["Do not force boom extension", "Secure boom in current position", "Check for visible damage"],
-                    requiredTools: ["Cable tension gauge", "Alignment tools", "Inspection mirror"],
-                    estimatedFixTime: 6,
-                    safetyPrecautions: ["Secure boom properly", "Use fall protection", "Work with partner"],
-                    commonAffectedModels: ["RT 540", "GR 800", "NK 500", "ATF 220"]
-                },
-                {
-                    errorCode: "E004",
-                    errorType: "Safety",
-                    severity: "Critical",
-                    description: "Load Moment Indicator Malfunction",
-                    symptoms: ["LMI showing incorrect readings", "Warning alarms not functioning", "False overload warnings"],
-                    causes: ["Sensor calibration issues", "Wiring problems", "Software glitch", "Damaged sensors"],
-                    solutions: ["Recalibrate LMI sensors", "Check sensor wiring", "Update LMI software", "Replace damaged sensors"],
-                    immediateActions: ["Stop all lifting operations", "Use manual calculations", "Verify load manually"],
-                    requiredTools: ["Calibration kit", "Multimeter", "Laptop with software"],
-                    estimatedFixTime: 3,
-                    safetyPrecautions: ["Never bypass LMI system", "Verify with manual calculations", "Test after repair"],
-                    commonAffectedModels: ["All modern crane models"]
-                },
-                {
-                    errorCode: "E005",
-                    errorType: "Hydraulic",
-                    severity: "Medium",
-                    description: "Cylinder Drift Issue",
-                    symptoms: ["Boom slowly lowers when stationary", "Fluid leakage around cylinders", "Reduced lifting capacity"],
-                    causes: ["Worn piston seals", "Faulty control valves", "Internal cylinder damage", "Contaminated fluid"],
-                    solutions: ["Replace piston seals", "Repair or replace control valves", "Inspect cylinder internals", "Change hydraulic fluid"],
-                    immediateActions: ["Monitor drift rate", "Do not leave loads suspended", "Mark current position"],
-                    requiredTools: ["Seal kit", "Pressure test equipment", "Fluid analysis kit"],
-                    estimatedFixTime: 5,
-                    safetyPrecautions: ["Block boom before working", "Release all pressure", "Use proper lifting equipment"],
-                    commonAffectedModels: ["ATF 220", "TCC 1200", "LTM 1500", "GMK 4100"]
                 }
             ];
             await ErrorCode.insertMany(sampleErrors);
@@ -170,11 +151,24 @@ function requireAuth(req, res, next) {
 }
 
 // Check auth status endpoint
-app.get('/api/auth/status', (req, res) => {
-    res.json({ 
-        authenticated: !!req.session.userId,
-        username: req.session.username 
-    });
+app.get('/api/auth/status', async (req, res) => {
+    try {
+        if (req.session.userId) {
+            const user = await User.findById(req.session.userId).select('username email');
+            res.json({ 
+                authenticated: true,
+                user: user
+            });
+        } else {
+            res.json({ 
+                authenticated: false
+            });
+        }
+    } catch (error) {
+        res.json({ 
+            authenticated: false
+        });
+    }
 });
 
 // Get user profile
@@ -192,21 +186,40 @@ app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         
+        console.log('Login attempt for user:', username);
+        
         if (!username || !password) {
             return res.status(400).json({ success: false, message: 'Username and password are required' });
         }
 
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username: username.trim() });
         
-        if (user && await bcrypt.compare(password, user.password)) {
+        if (!user) {
+            console.log('User not found:', username);
+            return res.status(401).json({ success: false, message: 'Invalid username or password' });
+        }
+
+        console.log('User found, checking password...');
+        
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        if (isPasswordValid) {
             req.session.userId = user._id;
             req.session.username = user.username;
+            
+            console.log('Login successful for user:', username);
+            
             res.json({ 
                 success: true, 
                 message: 'Login successful',
-                user: { username: user.username, email: user.email }
+                user: { 
+                    id: user._id,
+                    username: user.username, 
+                    email: user.email 
+                }
             });
         } else {
+            console.log('Invalid password for user:', username);
             res.status(401).json({ success: false, message: 'Invalid username or password' });
         }
     } catch (error) {
@@ -219,6 +232,8 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/signup', async (req, res) => {
     try {
         const { username, email, password, confirmPassword } = req.body;
+        
+        console.log('Signup attempt:', { username, email });
         
         // Validation
         if (!username || !email || !password || !confirmPassword) {
@@ -235,18 +250,25 @@ app.post('/api/signup', async (req, res) => {
 
         // Check if user already exists
         const existingUser = await User.findOne({ 
-            $or: [{ username }, { email }] 
+            $or: [
+                { username: username.trim().toLowerCase() },
+                { email: email.trim().toLowerCase() }
+            ] 
         });
         
         if (existingUser) {
-            return res.status(409).json({ success: false, message: 'Username or email already exists' });
+            const field = existingUser.username === username.trim().toLowerCase() ? 'username' : 'email';
+            return res.status(409).json({ 
+                success: false, 
+                message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists` 
+            });
         }
         
         // Create new user
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({ 
-            username, 
-            email, 
+            username: username.trim(),
+            email: email.trim().toLowerCase(), 
             password: hashedPassword 
         });
         
@@ -256,16 +278,29 @@ app.post('/api/signup', async (req, res) => {
         req.session.userId = user._id;
         req.session.username = user.username;
         
+        console.log('User created successfully:', username);
+        
         res.json({ 
             success: true, 
             message: 'Account created successfully!',
-            user: { username: user.username, email: user.email }
+            user: { 
+                id: user._id,
+                username: user.username, 
+                email: user.email 
+            }
         });
         
     } catch (error) {
         console.error('Signup error:', error);
         if (error.code === 11000) {
-            res.status(409).json({ success: false, message: 'Username or email already exists' });
+            const field = error.keyPattern.username ? 'username' : 'email';
+            res.status(409).json({ 
+                success: false, 
+                message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists` 
+            });
+        } else if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            res.status(400).json({ success: false, message: messages[0] });
         } else {
             res.status(500).json({ success: false, message: 'Server error during registration' });
         }
@@ -409,6 +444,11 @@ app.get('/api/dashboard/stats', requireAuth, async (req, res) => {
     }
 });
 
+// Serve main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Initialize database and start server
 async function startServer() {
     try {
@@ -417,6 +457,8 @@ async function startServer() {
         app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}`);
             console.log(`📱 Application ready for desktop and mobile use`);
+            console.log(`🔐 Authentication system: ACTIVE`);
+            console.log(`🗄️  Database: ${process.env.MONGO_URI ? 'MongoDB Atlas' : 'Local MongoDB'}`);
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);
