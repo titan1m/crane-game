@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Code Database - Crane Error Finder</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fas fa-crane"></i>
+                    <span>CraneError Finder</span>
+                </div>
+                <div class="nav-menu" id="navMenu">
+                    <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="error-codes.html" class="nav-link active"><i class="fas fa-database"></i> Error Codes</a>
+                    <a href="entry-mode.html" class="nav-link"><i class="fas fa-keyboard"></i> Entry Mode</a>
+                    <a href="reports.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Reports</a>
+                    <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+                    <a href="#" class="nav-link logout-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+                <div class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1><i class="fas fa-database"></i> Crane Error Code Database</h1>
+                    <p class="page-subtitle">Comprehensive database of crane error codes with detailed solutions and safety guidelines</p>
+                </div>
+
+                <!-- Search Section -->
+                <div class="card search-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-search"></i> Search Error Codes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-controls">
+                            <div class="search-input-group">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="searchInput" placeholder="Enter error code (e.g., E001) or description..." class="form-control search-input">
+                                <button onclick="searchErrorCodes()" class="btn btn-primary search-btn">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                                <button onclick="clearSearch()" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                            
+                            <div class="filter-options">
+                                <div class="filter-group">
+                                    <label for="errorTypeFilter"><i class="fas fa-filter"></i> Error Type:</label>
+                                    <select id="errorTypeFilter" class="form-control" onchange="searchErrorCodes()">
+                                        <option value="">All Types</option>
+                                        <option value="Hydraulic">Hydraulic</option>
+                                        <option value="Electrical">Electrical</option>
+                                        <option value="Mechanical">Mechanical</option>
+                                        <option value="Safety">Safety</option>
+                                        <option value="Software">Software</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="filter-group">
+                                    <label for="severityFilter"><i class="fas fa-exclamation-triangle"></i> Severity:</label>
+                                    <select id="severityFilter" class="form-control" onchange="searchErrorCodes()">
+                                        <option value="">All Levels</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access Codes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Quick Access Common Errors</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-codes-grid">
+                            <button onclick="loadErrorCode('E001')" class="quick-code-btn critical">
+                                <span class="code">E001</span>
+                                <span class="desc">Hydraulic Pressure Loss</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <button onclick="loadErrorCode('E002')" class="quick-code-btn critical">
+                                <span class="code">E002</span>
+                                <span class="desc">Emergency Stop Failure</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <button onclick="loadErrorCode('E003')" class="quick-code-btn high">
+                                <span class="code">E003</span>
+                                <span class="desc">Boom Extension Issue</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <button onclick="loadErrorCode('E004')" class="quick-code-btn critical">
+                                <span class="code">E004</span>
+                                <span class="desc">LMI Malfunction</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <button onclick="loadErrorCode('E005')" class="quick-code-btn medium">
+                                <span class="code">E005</span>
+                                <span class="desc">Cylinder Drift</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Search Results <span id="resultsCount" class="results-count"></span></h3>
+                        <button onclick="viewAllErrorCodes()" class="btn btn-outline">
+                            <i class="fas fa-eye"></i> View All
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="searchResults" class="search-results">
+                            <div class="empty-state">
+                                <i class="fas fa-search fa-3x"></i>
+                                <h4>Search Error Codes</h4>
+                                <p>Enter an error code or use the quick links above to get started</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Management -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cog"></i> Database Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="db-actions">
+                            <button onclick="initErrorCodeDatabase()" class="btn btn-success">
+                                <i class="fas fa-download"></i> Load Sample Error Codes
+                            </button>
+                            <span id="dbStatus" class="db-status">Database Ready</span>
+                        </div>
+                        <div class="db-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-bug"></i>
+                                <span id="totalCodes">5</span> Error Codes
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span id="criticalCodes">3</span> Critical
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-tools"></i>
+                                <span id="categories">5</span> Categories
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Error Details Modal -->
+    <div id="errorCodeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Error Code Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/error-codes.js"></script>
+</body>
+</html>
