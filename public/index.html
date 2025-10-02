@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Error Finder - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">Crane Error Finder</h1>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="entry-mode.html" class="nav-link">Report Error</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1>Welcome to Crane Error Finder</h1>
+            <p>Efficiently track and manage crane errors and maintenance issues</p>
+            <div class="cta-buttons">
+                <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+                <a href="entry-mode.html" class="btn btn-secondary">Report New Error</a>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Quick Error Reporting</h3>
+                <p>Report crane errors quickly using QR codes or manual entry</p>
+            </div>
+            <div class="feature-card">
+                <h3>Real-time Dashboard</h3>
+                <p>Monitor all crane errors and their status in real-time</p>
+            </div>
+            <div class="feature-card">
+                <h3>Detailed Reports</h3>
+                <p>Generate comprehensive reports for analysis</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Check if user is logged in
+        checkAuth();
+        
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            fetch('/api/logout', { method: 'POST' })
+                .then(() => window.location.href = 'login.html');
+        });
+    </script>
+</body>
+</html>
