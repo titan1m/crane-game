@@ -7,57 +7,112 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Crane Error Finder</h1>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="entry-mode.html" class="nav-link">Report Error</a>
-                <a href="settings.html" class="nav-link">Settings</a>
-                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-logo">🏗️ CraneError Finder</h1>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="entry-mode.html" class="nav-link">Report Error</a>
+                    <a href="reports.html" class="nav-link active">Reports</a>
+                    <a href="settings.html" class="nav-link">Settings</a>
+                    <button onclick="logout()" class="btn btn-secondary">Logout</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
-        <h1>Error Reports</h1>
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>📊 Error Reports</h1>
+                    <p class="page-subtitle">Comprehensive view of all reported crane errors and their status</p>
+                </div>
 
-        <div class="reports-controls">
-            <form id="filterForm">
-                <div class="filter-group">
-                    <div>
-                        <label for="statusFilter">Status:</label>
-                        <select id="statusFilter" name="status">
-                            <option value="">All Status</option>
-                            <option value="Open">Open</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Resolved">Resolved</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="severityFilter">Severity:</label>
-                        <select id="severityFilter" name="severity">
-                            <option value="">All Severity</option>
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                            <option value="Critical">Critical</option>
-                        </select>
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
-                        <button type="button" id="clearFilters" class="btn btn-secondary">Clear</button>
+                <div class="reports-controls">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🔍 Filter Reports</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="filterForm" class="filter-form">
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label for="statusFilter" class="form-label">Status</label>
+                                        <select id="statusFilter" name="status" class="form-control form-select">
+                                            <option value="">All Status</option>
+                                            <option value="Open">Open</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Resolved">Resolved</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label for="severityFilter" class="form-label">Severity</label>
+                                        <select id="severityFilter" name="severity" class="form-control form-select">
+                                            <option value="">All Severity</option>
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label for="dateFilter" class="form-label">Date Range</label>
+                                        <select id="dateFilter" name="dateRange" class="form-control form-select">
+                                            <option value="">All Time</option>
+                                            <option value="today">Today</option>
+                                            <option value="week">This Week</option>
+                                            <option value="month">This Month</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        🔍 Apply Filters
+                                    </button>
+                                    <button type="button" id="clearFilters" class="btn btn-secondary">
+                                        🗑️ Clear Filters
+                                    </button>
+                                    <button type="button" id="exportBtn" class="btn btn-success">
+                                        📄 Export Report
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </div>
 
-        <div id="reportsContent">
-            <div class="error-list" id="allErrors">
-                <!-- Errors will be loaded here -->
+                <div class="reports-summary">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="summary-stats">
+                                <div class="summary-item">
+                                    <span class="summary-label">Total Reports</span>
+                                    <span class="summary-value" id="totalReports">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Filtered Results</span>
+                                    <span class="summary-value" id="filteredResults">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Average Resolution</span>
+                                    <span class="summary-value" id="avgResolution">0h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reportsContent">
+                    <div class="error-list" id="allErrors">
+                        <!-- Errors will be loaded here -->
+                    </div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="js/main.js"></script>
