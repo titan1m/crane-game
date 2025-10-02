@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Crane Error Finder</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">Crane Error Finder</h1>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="entry-mode.html" class="nav-link">Report Error</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Error Reports</h1>
+
+        <div class="reports-controls">
+            <form id="filterForm">
+                <div class="filter-group">
+                    <div>
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter" name="status">
+                            <option value="">All Status</option>
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="severityFilter">Severity:</label>
+                        <select id="severityFilter" name="severity">
+                            <option value="">All Severity</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <button type="button" id="clearFilters" class="btn btn-secondary">Clear</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="reportsContent">
+            <div class="error-list" id="allErrors">
+                <!-- Errors will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
