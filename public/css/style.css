@@ -536,7 +536,37 @@ body {
     color: var(--gray);
     margin-top: 0.5rem;
 }
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+}
 
+.loading-state .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-state {
+    text-align: center;
+    padding: 2rem;
+    color: #e74c3c;
+}
+
+.error-state ul {
+    text-align: left;
+    display: inline-block;
+    margin: 1rem 0;
+}
 /* Option Cards */
 .scan-options {
     display: grid;
