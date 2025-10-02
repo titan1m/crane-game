@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Entry - Crane Error Finder</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">Crane Error Finder</h1>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Manual Error Report</h1>
+
+        <div class="form-container">
+            <form id="errorForm">
+                <div class="form-group">
+                    <label for="craneId">Crane ID:</label>
+                    <input type="text" id="craneId" name="craneId" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="errorType">Error Type:</label>
+                    <select id="errorType" name="errorType" required>
+                        <option value="">Select Error Type</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Hydraulic">Hydraulic</option>
+                        <option value="Software">Software</option>
+                        <option value="Safety">Safety</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="severity">Severity:</label>
+                    <select id="severity" name="severity" required>
+                        <option value="">Select Severity</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Error Description:</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Report Error</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
