@@ -15,7 +15,7 @@
                 <a href="entry-mode.html" class="nav-link">Report Error</a>
                 <a href="reports.html" class="nav-link">Reports</a>
                 <a href="settings.html" class="nav-link">Settings</a>
-                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
             </div>
         </div>
     </nav>
@@ -47,14 +47,5 @@
     </div>
 
     <script src="js/main.js"></script>
-    <script>
-        // Check if user is logged in
-        checkAuth();
-        
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            fetch('/api/logout', { method: 'POST' })
-                .then(() => window.location.href = 'login.html');
-        });
-    </script>
 </body>
 </html>
