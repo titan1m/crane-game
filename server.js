@@ -24,65 +24,136 @@ app.use(session({
     }
 }));
 
-// MongoDB connection (using local MongoDB for testing)
+// MongoDB connection
 const MONGODB_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/craneDB';
 
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ Connected to MongoDB successfully'))
-    .catch(err => {
-        console.error('❌ MongoDB connection error:', err);
-        console.log('💡 Using in-memory storage for demo purposes...');
-    });
+const connectDB = async () => {
+    try {
+        await mongoose.connect(MONGODB_URI);
+        console.log('✅ MongoDB Connected Successfully');
+    } catch (error) {
+        console.error('❌ MongoDB Connection Error:', error.message);
+        process.exit(1);
+    }
+};
 
 // User Schema
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
+    username: { 
+        type: String, 
+        required: true, 
+        unique: true,
+        trim: true,
+        minlength: 3
+    },
+    email: { 
+        type: String, 
+        required: true, 
+        unique: true,
+        trim: true,
+        lowercase: true
+    },
+    password: { 
+        type: String, 
+        required: true,
+        minlength: 6
+    },
+    createdAt: { 
+        type: Date, 
+        default: Date.now 
+    }
 });
 
 const User = mongoose.model('User', userSchema);
 
 // Crane Error Schema
 const craneErrorSchema = new mongoose.Schema({
-    craneId: { type: String, required: true },
-    errorType: { type: String, required: true },
-    severity: { type: String, required: true, enum: ['Low', 'Medium', 'High', 'Critical'] },
-    description: { type: String, required: true },
-    reportedBy: { type: String, required: true },
-    status: { type: String, default: 'Open', enum: ['Open', 'In Progress', 'Resolved'] },
-    location: String,
-    timestamp: { type: Date, default: Date.now },
-    resolvedAt: Date,
-    notes: String
+    craneId: { 
+        type: String, 
+        required: true,
+        trim: true
+    },
+    errorType: { 
+        type: String, 
+        required: true,
+        enum: ['Mechanical', 'Electrical', 'Hydraulic', 'Software', 'Safety', 'Other']
+    },
+    severity: { 
+        type: String, 
+        required: true, 
+        enum: ['Low', 'Medium', 'High', 'Critical'] 
+    },
+    description: { 
+        type: String, 
+        required: true,
+        trim: true
+    },
+    reportedBy: { 
+        type: String, 
+        required: true 
+    },
+    status: { 
+        type: String, 
+        default: 'Open', 
+        enum: ['Open', 'In Progress', 'Resolved'] 
+    },
+    location: {
+        type: String,
+        trim: true
+    },
+    timestamp: { 
+        type: Date, 
+        default: Date.now 
+    },
+    resolvedAt: { 
+        type: Date 
+    },
+    notes: {
+        type: String
+    }
 });
 
 const CraneError = mongoose.model('CraneError', craneErrorSchema);
 
 // Error Code Database Schema
 const errorCodeSchema = new mongoose.Schema({
-    errorCode: { type: String, required: true, unique: true },
-    errorType: { type: String, required: true },
-    severity: { type: String, required: true, enum: ['Low', 'Medium', 'High', 'Critical'] },
-    description: { type: String, required: true },
+    errorCode: { 
+        type: String, 
+        required: true, 
+        unique: true,
+        uppercase: true
+    },
+    errorType: { 
+        type: String, 
+        required: true,
+        enum: ['Mechanical', 'Electrical', 'Hydraulic', 'Software', 'Safety', 'Electronic']
+    },
+    severity: { 
+        type: String, 
+        required: true, 
+        enum: ['Low', 'Medium', 'High', 'Critical'] 
+    },
+    description: { 
+        type: String, 
+        required: true 
+    },
     symptoms: [String],
-    possibleCauses: [String],
-    troubleshootingSteps: [String],
+    causes: [String],
+    solutions: [String],
+    immediateActions: [String],
     requiredTools: [String],
-    estimatedRepairTime: String,
+    estimatedFixTime: {
+        type: Number,
+        min: 0.5,
+        max: 48
+    },
     safetyPrecautions: [String],
-    createdAt: { type: Date, default: Date.now }
+    commonAffectedModels: [String]
+}, {
+    timestamps: true
 });
 
 const ErrorCode = mongoose.model('ErrorCode', errorCodeSchema);
-
-// In-memory storage fallback
-let memoryStorage = {
-    users: [],
-    errors: [],
-    errorCodes: []
-};
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
@@ -92,9 +163,6 @@ const requireAuth = (req, res, next) => {
         res.status(401).json({ error: 'Not authenticated. Please login.' });
     }
 };
-
-// Check if MongoDB is connected
-const isMongoConnected = () => mongoose.connection.readyState === 1;
 
 // Routes
 
@@ -108,7 +176,8 @@ app.get('/:page', (req, res) => {
     const page = req.params.page;
     const allowedPages = [
         'index.html', 'dashboard.html', 'entry-mode.html', 'qr-scanner.html',
-        'manual-entry.html', 'reports.html', 'settings.html', 'login.html', 'signup.html'
+        'manual-entry.html', 'reports.html', 'settings.html', 'login.html', 
+        'signup.html', 'error-codes.html', 'data-management.html'
     ];
     
     if (allowedPages.includes(page)) {
@@ -120,6 +189,30 @@ app.get('/:page', (req, res) => {
 
 // API Routes
 
+// Health check
+app.get('/api/health', async (req, res) => {
+    try {
+        const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+        const userCount = await User.countDocuments();
+        const errorCount = await CraneError.countDocuments();
+        const errorCodeCount = await ErrorCode.countDocuments();
+        
+        res.json({
+            status: 'OK',
+            timestamp: new Date().toISOString(),
+            database: {
+                status: dbStatus,
+                users: userCount,
+                errors: errorCount,
+                errorCodes: errorCodeCount
+            },
+            session: req.session.userId ? 'Active' : 'Inactive'
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Health check failed' });
+    }
+});
+
 // User registration
 app.post('/api/signup', async (req, res) => {
     try {
@@ -129,17 +222,14 @@ app.post('/api/signup', async (req, res) => {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        let existingUser;
-        
-        if (isMongoConnected()) {
-            existingUser = await User.findOne({ 
-                $or: [{ email }, { username }] 
-            });
-        } else {
-            existingUser = memoryStorage.users.find(user => 
-                user.email === email || user.username === username
-            );
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters' });
         }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ 
+            $or: [{ email }, { username }] 
+        });
         
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists with this email or username' });
@@ -147,31 +237,30 @@ app.post('/api/signup', async (req, res) => {
         
         const hashedPassword = await bcrypt.hash(password, 12);
         
-        if (isMongoConnected()) {
-            const user = new User({ username, email, password: hashedPassword });
-            await user.save();
-            req.session.userId = user._id;
-            req.session.username = user.username;
-        } else {
-            const user = {
-                _id: 'user_' + Date.now(),
-                username,
-                email,
-                password: hashedPassword,
-                createdAt: new Date()
-            };
-            memoryStorage.users.push(user);
-            req.session.userId = user._id;
-            req.session.username = user.username;
-        }
+        const user = new User({ 
+            username, 
+            email, 
+            password: hashedPassword
+        });
+        
+        await user.save();
+        
+        req.session.userId = user._id;
+        req.session.username = user.username;
         
         res.json({ 
             success: true, 
             message: 'User created successfully',
-            username: req.session.username
+            username: user.username
         });
+        
     } catch (error) {
         console.error('Signup error:', error);
+        
+        if (error.code === 11000) {
+            return res.status(400).json({ error: 'Username or email already exists' });
+        }
+        
         res.status(500).json({ error: 'Server error during registration' });
     }
 });
@@ -185,13 +274,7 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ error: 'Email and password are required' });
         }
         
-        let user;
-        
-        if (isMongoConnected()) {
-            user = await User.findOne({ email });
-        } else {
-            user = memoryStorage.users.find(u => u.email === email);
-        }
+        const user = await User.findOne({ email });
         
         if (!user) {
             return res.status(400).json({ error: 'Invalid email or password' });
@@ -210,6 +293,7 @@ app.post('/api/login', async (req, res) => {
             message: 'Login successful',
             username: user.username
         });
+        
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Server error during login' });
@@ -227,14 +311,28 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Get current user
-app.get('/api/user', (req, res) => {
-    if (req.session.userId && req.session.username) {
+app.get('/api/user', async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+        
+        const user = await User.findById(req.session.userId).select('-password');
+        
+        if (!user) {
+            req.session.destroy();
+            return res.status(401).json({ error: 'User not found' });
+        }
+        
         res.json({ 
-            username: req.session.username,
-            userId: req.session.userId
+            username: user.username,
+            email: user.email,
+            createdAt: user.createdAt
         });
-    } else {
-        res.status(401).json({ error: 'Not authenticated' });
+        
+    } catch (error) {
+        console.error('User fetch error:', error);
+        res.status(500).json({ error: 'Failed to fetch user data' });
     }
 });
 
@@ -246,7 +344,7 @@ app.post('/api/errors', requireAuth, async (req, res) => {
         const { craneId, errorType, severity, description, location } = req.body;
         
         if (!craneId || !errorType || !severity || !description) {
-            return res.status(400).json({ error: 'Required fields missing' });
+            return res.status(400).json({ error: 'Crane ID, error type, severity, and description are required' });
         }
         
         const errorData = {
@@ -255,29 +353,18 @@ app.post('/api/errors', requireAuth, async (req, res) => {
             severity,
             description,
             location: location || 'Not specified',
-            reportedBy: req.session.username,
-            status: 'Open',
-            timestamp: new Date()
+            reportedBy: req.session.username
         };
         
-        let savedError;
-        
-        if (isMongoConnected()) {
-            const error = new CraneError(errorData);
-            savedError = await error.save();
-        } else {
-            savedError = {
-                _id: 'error_' + Date.now(),
-                ...errorData
-            };
-            memoryStorage.errors.push(savedError);
-        }
+        const error = new CraneError(errorData);
+        const savedError = await error.save();
         
         res.json({ 
             success: true, 
             message: 'Error reported successfully',
             error: savedError 
         });
+        
     } catch (error) {
         console.error('Error creation failed:', error);
         res.status(500).json({ error: 'Failed to create error report' });
@@ -287,14 +374,7 @@ app.post('/api/errors', requireAuth, async (req, res) => {
 // Get all errors
 app.get('/api/errors', requireAuth, async (req, res) => {
     try {
-        let errors;
-        
-        if (isMongoConnected()) {
-            errors = await CraneError.find().sort({ timestamp: -1 });
-        } else {
-            errors = memoryStorage.errors.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        }
-        
+        const errors = await CraneError.find().sort({ timestamp: -1 });
         res.json(errors);
     } catch (error) {
         console.error('Error fetching errors:', error);
@@ -312,87 +392,32 @@ app.put('/api/errors/:id', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Invalid status' });
         }
         
-        let updatedError;
+        const updateData = { status };
         
-        if (isMongoConnected()) {
-            const updateData = { status };
-            if (status === 'Resolved') {
-                updateData.resolvedAt = new Date();
-            }
-            if (notes) {
-                updateData.notes = notes;
-            }
-            
-            updatedError = await CraneError.findByIdAndUpdate(
-                errorId, 
-                updateData, 
-                { new: true }
-            );
-            
-            if (!updatedError) {
-                return res.status(404).json({ error: 'Error not found' });
-            }
-        } else {
-            const errorIndex = memoryStorage.errors.findIndex(e => e._id === errorId);
-            if (errorIndex === -1) {
-                return res.status(404).json({ error: 'Error not found' });
-            }
-            
-            memoryStorage.errors[errorIndex].status = status;
-            if (status === 'Resolved') {
-                memoryStorage.errors[errorIndex].resolvedAt = new Date();
-            }
-            if (notes) {
-                memoryStorage.errors[errorIndex].notes = notes;
-            }
-            
-            updatedError = memoryStorage.errors[errorIndex];
+        if (status === 'Resolved') {
+            updateData.resolvedAt = new Date();
+        }
+        if (notes) updateData.notes = notes;
+        
+        const updatedError = await CraneError.findByIdAndUpdate(
+            errorId, 
+            updateData, 
+            { new: true }
+        );
+        
+        if (!updatedError) {
+            return res.status(404).json({ error: 'Error not found' });
         }
         
         res.json({ 
             success: true, 
-            message: 'Error status updated successfully',
+            message: 'Error updated successfully',
             error: updatedError 
         });
+        
     } catch (error) {
         console.error('Error updating status:', error);
-        res.status(500).json({ error: 'Failed to update error status' });
-    }
-});
-
-// Get error statistics
-app.get('/api/stats', requireAuth, async (req, res) => {
-    try {
-        let errors;
-        
-        if (isMongoConnected()) {
-            errors = await CraneError.find();
-        } else {
-            errors = memoryStorage.errors;
-        }
-        
-        const totalErrors = errors.length;
-        const openErrors = errors.filter(e => e.status === 'Open').length;
-        const inProgressErrors = errors.filter(e => e.status === 'In Progress').length;
-        const resolvedErrors = errors.filter(e => e.status === 'Resolved').length;
-        
-        const severityStats = [
-            { _id: 'Low', count: errors.filter(e => e.severity === 'Low').length },
-            { _id: 'Medium', count: errors.filter(e => e.severity === 'Medium').length },
-            { _id: 'High', count: errors.filter(e => e.severity === 'High').length },
-            { _id: 'Critical', count: errors.filter(e => e.severity === 'Critical').length }
-        ];
-        
-        res.json({
-            totalErrors,
-            openErrors,
-            inProgressErrors,
-            resolvedErrors,
-            severityStats
-        });
-    } catch (error) {
-        console.error('Error fetching stats:', error);
-        res.status(500).json({ error: 'Failed to fetch statistics' });
+        res.status(500).json({ error: 'Failed to update error' });
     }
 });
 
@@ -401,117 +426,237 @@ app.delete('/api/errors/:id', requireAuth, async (req, res) => {
     try {
         const errorId = req.params.id;
         
-        if (isMongoConnected()) {
-            const result = await CraneError.findByIdAndDelete(errorId);
-            if (!result) {
-                return res.status(404).json({ error: 'Error not found' });
-            }
-        } else {
-            const errorIndex = memoryStorage.errors.findIndex(e => e._id === errorId);
-            if (errorIndex === -1) {
-                return res.status(404).json({ error: 'Error not found' });
-            }
-            memoryStorage.errors.splice(errorIndex, 1);
+        const result = await CraneError.findByIdAndDelete(errorId);
+        
+        if (!result) {
+            return res.status(404).json({ error: 'Error not found' });
         }
         
         res.json({ success: true, message: 'Error deleted successfully' });
+        
     } catch (error) {
         console.error('Error deleting:', error);
         res.status(500).json({ error: 'Failed to delete error' });
     }
 });
 
+// Clear all errors
+app.delete('/api/errors', requireAuth, async (req, res) => {
+    try {
+        await CraneError.deleteMany({});
+        res.json({ success: true, message: 'All errors deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to clear errors' });
+    }
+});
+
+// Get error statistics
+app.get('/api/stats', requireAuth, async (req, res) => {
+    try {
+        const totalErrors = await CraneError.countDocuments();
+        const openErrors = await CraneError.countDocuments({ status: 'Open' });
+        const inProgressErrors = await CraneError.countDocuments({ status: 'In Progress' });
+        const resolvedErrors = await CraneError.countDocuments({ status: 'Resolved' });
+        
+        const severityStats = await CraneError.aggregate([
+            { $group: { _id: '$severity', count: { $sum: 1 } } }
+        ]);
+        
+        const errorTypeStats = await CraneError.aggregate([
+            { $group: { _id: '$errorType', count: { $sum: 1 } } }
+        ]);
+        
+        res.json({
+            totalErrors,
+            openErrors,
+            inProgressErrors,
+            resolvedErrors,
+            severityStats,
+            errorTypeStats
+        });
+        
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ error: 'Failed to fetch statistics' });
+    }
+});
+
+// Initialize sample error data
+app.post('/api/init-sample-data', requireAuth, async (req, res) => {
+    try {
+        // Clear existing data
+        await CraneError.deleteMany({});
+        
+        const sampleErrors = [
+            {
+                craneId: "CRN-001",
+                errorType: "Mechanical",
+                severity: "High",
+                description: "Hydraulic fluid leak in boom cylinder",
+                location: "Construction Site A",
+                reportedBy: req.session.username,
+                status: "Open"
+            },
+            {
+                craneId: "CRN-002",
+                errorType: "Electrical", 
+                severity: "Critical",
+                description: "Control panel malfunction - emergency stop not working",
+                location: "Warehouse 3",
+                reportedBy: req.session.username,
+                status: "In Progress"
+            },
+            {
+                craneId: "CRN-003",
+                errorType: "Hydraulic",
+                severity: "Medium", 
+                description: "Hydraulic pump making unusual noise",
+                location: "Port Terminal",
+                reportedBy: req.session.username,
+                status: "Open"
+            },
+            {
+                craneId: "CRN-004",
+                errorType: "Safety",
+                severity: "High",
+                description: "Load moment indicator showing wrong readings",
+                location: "High-rise Site",
+                reportedBy: req.session.username,
+                status: "Resolved",
+                resolvedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+            },
+            {
+                craneId: "CRN-005",
+                errorType: "Software",
+                severity: "Low",
+                description: "Control system occasional freeze",
+                location: "Automated Warehouse",
+                reportedBy: req.session.username,
+                status: "Open"
+            }
+        ];
+
+        await CraneError.insertMany(sampleErrors);
+
+        res.json({ 
+            success: true, 
+            message: 'Sample data initialized successfully',
+            count: sampleErrors.length 
+        });
+
+    } catch (error) {
+        console.error('Sample data initialization failed:', error);
+        res.status(500).json({ error: 'Failed to initialize sample data' });
+    }
+});
+
 // Error Code Database API Routes
+
+// Get all error codes
 app.get('/api/error-codes', requireAuth, async (req, res) => {
     try {
         const { search, errorType, severity } = req.query;
         let filter = {};
         
-        console.log('Search request:', { search, errorType, severity });
-        
-        if (isMongoConnected()) {
-            if (search) {
-                filter.$or = [
-                    { errorCode: { $regex: search, $options: 'i' } },
-                    { description: { $regex: search, $options: 'i' } },
-                    { symptoms: { $in: [new RegExp(search, 'i')] } }
-                ];
-            }
-            if (errorType) filter.errorType = errorType;
-            if (severity) filter.severity = severity;
-            
-            const errorCodes = await ErrorCode.find(filter).sort({ errorCode: 1 });
-            console.log('Found error codes:', errorCodes.length);
-            
-            res.json(errorCodes);
-        } else {
-            // In-memory storage implementation
-            let errorCodes = [...memoryStorage.errorCodes];
-            
-            if (search) {
-                const searchLower = search.toLowerCase();
-                errorCodes = errorCodes.filter(code => 
-                    code.errorCode.toLowerCase().includes(searchLower) ||
-                    code.description.toLowerCase().includes(searchLower) ||
-                    code.symptoms.some(symptom => symptom.toLowerCase().includes(searchLower))
-                );
-            }
-            if (errorType) {
-                errorCodes = errorCodes.filter(code => code.errorType === errorType);
-            }
-            if (severity) {
-                errorCodes = errorCodes.filter(code => code.severity === severity);
-            }
-            
-            errorCodes.sort((a, b) => a.errorCode.localeCompare(b.errorCode));
-            console.log('Found error codes (memory):', errorCodes.length);
-            
-            res.json(errorCodes);
+        if (search) {
+            filter.$or = [
+                { errorCode: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
         }
+        if (errorType) filter.errorType = errorType;
+        if (severity) filter.severity = severity;
+        
+        const errorCodes = await ErrorCode.find(filter).sort({ errorCode: 1 });
+        res.json(errorCodes);
     } catch (error) {
         console.error('Error fetching error codes:', error);
         res.status(500).json({ error: 'Failed to fetch error codes' });
     }
 });
 
+// Get specific error code
 app.get('/api/error-codes/:code', requireAuth, async (req, res) => {
     try {
-        if (isMongoConnected()) {
-            const errorCode = await ErrorCode.findOne({ 
-                errorCode: req.params.code.toUpperCase() 
-            });
-            
-            if (!errorCode) {
-                return res.status(404).json({ error: 'Error code not found' });
-            }
-            
-            res.json(errorCode);
-        } else {
-            // In-memory storage implementation
-            const errorCode = memoryStorage.errorCodes.find(
-                code => code.errorCode.toUpperCase() === req.params.code.toUpperCase()
-            );
-            
-            if (!errorCode) {
-                return res.status(404).json({ error: 'Error code not found' });
-            }
-            
-            res.json(errorCode);
+        const errorCode = await ErrorCode.findOne({ 
+            errorCode: req.params.code.toUpperCase() 
+        });
+        
+        if (!errorCode) {
+            return res.status(404).json({ error: 'Error code not found' });
         }
+        
+        res.json(errorCode);
     } catch (error) {
-        console.error('Error fetching error code:', error);
         res.status(500).json({ error: 'Failed to fetch error code' });
     }
 });
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        database: isMongoConnected() ? 'Connected' : 'Using memory storage',
-        session: req.session.userId ? 'Active' : 'Inactive'
-    });
+// Initialize error code database
+app.post('/api/error-codes/init', requireAuth, async (req, res) => {
+    try {
+        const existingCount = await ErrorCode.countDocuments();
+        if (existingCount > 0) {
+            return res.json({ message: 'Error code database already initialized' });
+        }
+
+        const sampleErrorCodes = [
+            {
+                errorCode: "E001",
+                errorType: "Hydraulic",
+                severity: "High",
+                description: "Hydraulic System Pressure Loss",
+                symptoms: ["Slow boom movement", "Unable to lift rated loads", "Hydraulic fluid leakage"],
+                causes: ["Hydraulic fluid leak", "Faulty pressure relief valve", "Worn pump seals"],
+                solutions: ["Check and repair hydraulic lines", "Replace pressure relief valve", "Inspect and replace pump seals"],
+                immediateActions: ["Stop crane operation immediately", "Check hydraulic fluid level", "Inspect for visible leaks"],
+                requiredTools: ["Pressure gauge", "Wrench set", "Leak detection kit"],
+                estimatedFixTime: 4,
+                safetyPrecautions: ["Release hydraulic pressure before working", "Use proper PPE"],
+                commonAffectedModels: ["LTM 1100", "GMK 3050", "AC 250"]
+            },
+            {
+                errorCode: "E002",
+                errorType: "Electrical",
+                severity: "Critical", 
+                description: "Emergency Stop Circuit Failure",
+                symptoms: ["Emergency stop button not functioning", "Control panel error lights"],
+                causes: ["Faulty emergency stop button", "Broken wiring in safety circuit"],
+                solutions: ["Test and replace emergency stop button", "Check and repair safety circuit wiring"],
+                immediateActions: ["Use secondary shutdown procedures", "Disconnect main power source"],
+                requiredTools: ["Multimeter", "Wiring diagrams"],
+                estimatedFixTime: 2,
+                safetyPrecautions: ["Lock out/tag out power sources", "Test all safety systems after repair"],
+                commonAffectedModels: ["All models with electronic controls"]
+            },
+            {
+                errorCode: "E003",
+                errorType: "Mechanical",
+                severity: "Medium",
+                description: "Boom Extension Mechanism Issue",
+                symptoms: ["Boom extends unevenly", "Sticking during extension/retraction"],
+                causes: ["Worn extension cables", "Damaged rollers or guides"],
+                solutions: ["Inspect and replace extension cables", "Replace worn rollers and guides"],
+                immediateActions: ["Do not extend boom further", "Retract boom slowly if possible"],
+                requiredTools: ["Cable tension gauge", "Lubrication equipment"],
+                estimatedFixTime: 6,
+                safetyPrecautions: ["Secure boom before inspection", "Check load charts after repair"],
+                commonAffectedModels: ["Telescopic boom cranes"]
+            }
+        ];
+
+        await ErrorCode.insertMany(sampleErrorCodes);
+
+        res.json({ 
+            success: true, 
+            message: 'Error code database initialized successfully',
+            count: sampleErrorCodes.length 
+        });
+
+    } catch (error) {
+        console.error('Error code initialization failed:', error);
+        res.status(500).json({ error: 'Failed to initialize error code database' });
+    }
 });
 
 // 404 handler for API routes
@@ -520,9 +665,20 @@ app.use('/api/*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Crane Error Finder server running on port ${PORT}`);
-    console.log(`📍 Access the application at: http://localhost:${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`💾 Database: ${isMongoConnected() ? 'MongoDB Connected' : 'Using In-Memory Storage'}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        
+        app.listen(PORT, () => {
+            console.log(`🚀 Crane Error Finder server running on port ${PORT}`);
+            console.log(`📍 Access the application at: http://localhost:${PORT}`);
+            console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+        });
+        
+    } catch (error) {
+        console.error('❌ Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
