@@ -130,6 +130,15 @@ body {
     background-color: #c0392b;
 }
 
+.btn-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #e67e22;
+}
+
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -150,7 +159,6 @@ body {
     color: #2c3e50;
 }
 
-/* Form Styles */
 .form-container {
     background: white;
     padding: 2rem;
@@ -186,7 +194,6 @@ body {
     resize: vertical;
 }
 
-/* Dashboard Styles */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -227,6 +234,15 @@ body {
     border-bottom: none;
 }
 
+.error-details {
+    flex-grow: 1;
+}
+
+.error-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .error-severity {
     padding: 0.25rem 0.5rem;
     border-radius: 3px;
@@ -251,7 +267,6 @@ body {
 .status-in-progress { background-color: #f39c12; color: white; }
 .status-resolved { background-color: #27ae60; color: white; }
 
-/* QR Scanner Styles */
 .qr-scanner-container {
     text-align: center;
     padding: 2rem;
@@ -264,7 +279,43 @@ body {
     margin: 1rem 0;
 }
 
-/* Responsive Design */
+.scan-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.option-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+}
+
+.reports-controls {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 @media (max-width: 768px) {
     .nav-container {
         flex-direction: column;
@@ -288,9 +339,17 @@ body {
     .container {
         padding: 0 1rem;
     }
+    
+    .scan-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
-/* Login/Signup Pages */
 .auth-container {
     min-height: 100vh;
     display: flex;
@@ -326,4 +385,10 @@ body {
 
 .auth-links a:hover {
     text-decoration: underline;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
 }
