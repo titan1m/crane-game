@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Crane Error Finder</title>
+    <title>Data Management - Crane Error Finder</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,10 +13,9 @@
                 <h1 class="nav-logo">🏗️ CraneError Finder</h1>
                 <div class="nav-menu">
                     <a href="index.html" class="nav-link">Home</a>
-                    <a href="dashboard.html" class="nav-link active">Dashboard</a>
-                    <a href="entry-mode.html" class="nav-link">Report Error</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="data-management.html" class="nav-link active">Add Data</a>
                     <a href="reports.html" class="nav-link">Reports</a>
-                    <a href="settings.html" class="nav-link">Settings</a>
                     <button onclick="logout()" class="btn btn-secondary">Logout</button>
                 </div>
             </div>
@@ -24,49 +23,115 @@
 
         <main class="main-content">
             <div class="container">
-                <div class="dashboard-header">
-                    <div>
-                        <h1>Dashboard Overview</h1>
-                        <p class="dashboard-subtitle">Real-time monitoring of crane errors and performance</p>
-                    </div>
-                    <button id="refreshBtn" class="btn btn-primary">
-                        🔄 Refresh Data
-                    </button>
+                <div class="page-header">
+                    <h1>📊 Data Management</h1>
+                    <p class="page-subtitle">Quickly add sample crane error data to test the application</p>
                 </div>
 
-                <div class="stats-grid">
-                    <div class="card stat-card">
-                        <div class="stat-number" id="totalErrors">0</div>
-                        <div class="stat-label">Total Errors</div>
+                <div class="data-management-grid">
+                    <!-- Quick Add Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>⚡ Quick Add Sample Data</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Add realistic sample crane errors with one click:</p>
+                            
+                            <div class="sample-options">
+                                <button onclick="addSampleData('small')" class="btn btn-primary">
+                                    📥 Add 5 Sample Errors
+                                </button>
+                                <button onclick="addSampleData('large')" class="btn btn-success">
+                                    🗃️ Add 10 Sample Errors
+                                </button>
+                            </div>
+                            
+                            <div class="data-preview">
+                                <h4>Sample Data Includes:</h4>
+                                <ul>
+                                    <li>✅ Different crane types and IDs</li>
+                                    <li>✅ Various error types (Mechanical, Electrical, etc.)</li>
+                                    <li>✅ All severity levels (Low to Critical)</li>
+                                    <li>✅ Different statuses (Open, In Progress, Resolved)</li>
+                                    <li>✅ Realistic locations and descriptions</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card stat-card">
-                        <div class="stat-number" id="openErrors">0</div>
-                        <div class="stat-label">Open Errors</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-number" id="inProgressErrors">0</div>
-                        <div class="stat-label">In Progress</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-number" id="resolvedErrors">0</div>
-                        <div class="stat-label">Resolved</div>
-                    </div>
-                </div>
 
-                <div class="chart-container">
-                    <h3>Error Statistics</h3>
-                    <div id="quickStats" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-                        <!-- Quick stats will be loaded here -->
+                    <!-- Manual Add Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🎯 Add Specific Error</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="quickErrorForm" class="quick-form">
+                                <div class="form-group">
+                                    <label class="form-label">Crane ID:</label>
+                                    <input type="text" class="form-control" id="craneId" value="CRN-001" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Error Type:</label>
+                                    <select class="form-control" id="errorType">
+                                        <option value="Mechanical">Mechanical</option>
+                                        <option value="Electrical">Electrical</option>
+                                        <option value="Hydraulic">Hydraulic</option>
+                                        <option value="Safety">Safety</option>
+                                        <option value="Software">Software</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Severity:</label>
+                                    <select class="form-control" id="severity">
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Description:</label>
+                                    <textarea class="form-control" id="description" rows="2" required>Sample error description</textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Add This Error</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h3>📋 Recent Error Reports</h3>
+                    <!-- Data Status Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📈 Current Data Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="dataStatus" class="data-status">
+                                <div class="loading">Loading data status...</div>
+                            </div>
+                            
+                            <div class="data-actions">
+                                <button onclick="viewAllErrors()" class="btn btn-secondary">
+                                    👀 View All Errors
+                                </button>
+                                <button onclick="clearAllData()" class="btn btn-danger">
+                                    🗑️ Clear All Data
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div id="recentErrors" class="error-list">
-                            <!-- Recent errors will be loaded here -->
+
+                    <!-- Sample Data Preview -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>👀 Sample Data Preview</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="samplePreview" class="sample-preview">
+                                <p>Sample data will appear here after adding</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,5 +140,6 @@
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/data-management.js"></script>
 </body>
 </html>
