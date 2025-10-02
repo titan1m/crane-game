@@ -48,24 +48,33 @@ class ErrorCodeManager {
         this.showLoading();
 
         try {
+            // Build query parameters
             const params = new URLSearchParams();
-            if (searchTerm) params.append('search', searchTerm);
-            if (errorType) params.append('errorType', errorType);
+            if (searchTerm) params.append('q', searchTerm); // Changed from 'search' to 'q'
+            if (errorType) params.append('type', errorType); // Changed from 'errorType' to 'type'
             if (severity) params.append('severity', severity);
 
             const response = await fetch(`/api/error-codes?${params}`);
             
             if (!response.ok) {
+                // If no error codes found, return empty array instead of throwing
+                if (response.status === 404) {
+                    this.currentResults = [];
+                    this.displaySearchResults();
+                    return;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            this.currentResults = await response.json();
+            const data = await response.json();
+            this.currentResults = data.errorCodes || data || []; // Handle different response formats
             this.displaySearchResults();
             
         } catch (error) {
             console.error('Search error:', error);
             this.showMessage('❌ Search failed. Please check if error codes are initialized.', 'error');
-            this.displayErrorState();
+            this.currentResults = [];
+            this.displaySearchResults();
         }
     }
 
@@ -113,11 +122,11 @@ class ErrorCodeManager {
                 </div>
                 <div class="error-code-body">
                     <h4>${errorCode.description}</h4>
-                    <p class="symptoms-preview">${errorCode.symptoms.slice(0, 2).join(', ')}...</p>
+                    <p class="symptoms-preview">${errorCode.symptoms ? errorCode.symptoms.slice(0, 2).join(', ') : 'No symptoms listed'}...</p>
                     <div class="error-code-meta">
-                        <span>⏱️ ${errorCode.estimatedFixTime}h fix</span>
-                        <span>🛠️ ${errorCode.requiredTools.length} tools</span>
-                        <span>🏗️ ${errorCode.commonAffectedModels.length} models</span>
+                        <span>⏱️ ${errorCode.estimatedFixTime || 'Unknown'}h fix</span>
+                        <span>🛠️ ${errorCode.requiredTools ? errorCode.requiredTools.length : 0} tools</span>
+                        <span>🏗️ ${errorCode.commonAffectedModels ? errorCode.commonAffectedModels.length : 0} models</span>
                     </div>
                 </div>
             </div>
@@ -187,63 +196,63 @@ class ErrorCodeManager {
                 <div class="error-code-details">
                     <div class="detail-section">
                         <h4>📋 Description</h4>
-                        <p>${errorCode.description}</p>
+                        <p>${errorCode.description || 'No description available'}</p>
                     </div>
 
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <strong>Type:</strong> ${errorCode.errorType}
+                            <strong>Type:</strong> ${errorCode.errorType || 'Unknown'}
                         </div>
                         <div class="detail-item">
-                            <strong>Severity:</strong> <span class="severity-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.severity}</span>
+                            <strong>Severity:</strong> <span class="severity-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.severity || 'Unknown'}</span>
                         </div>
                         <div class="detail-item">
-                            <strong>Fix Time:</strong> ${errorCode.estimatedFixTime} hours
+                            <strong>Fix Time:</strong> ${errorCode.estimatedFixTime || 'Unknown'} hours
                         </div>
                         <div class="detail-item">
-                            <strong>Affected Models:</strong> ${errorCode.commonAffectedModels.join(', ') || 'Various'}
+                            <strong>Affected Models:</strong> ${errorCode.commonAffectedModels ? errorCode.commonAffectedModels.join(', ') : 'Various'}
                         </div>
                     </div>
 
                     <div class="detail-section">
                         <h4>🚨 Symptoms</h4>
                         <ul>
-                            ${errorCode.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
+                            ${errorCode.symptoms ? errorCode.symptoms.map(symptom => `<li>${symptom}</li>`).join('') : '<li>No symptoms listed</li>'}
                         </ul>
                     </div>
 
                     <div class="detail-section">
                         <h4>🔍 Possible Causes</h4>
                         <ul>
-                            ${errorCode.causes.map(cause => `<li>${cause}</li>`).join('')}
+                            ${errorCode.causes ? errorCode.causes.map(cause => `<li>${cause}</li>`).join('') : '<li>No causes listed</li>'}
                         </ul>
                     </div>
 
                     <div class="detail-section">
                         <h4>🛠️ Solutions</h4>
                         <ol>
-                            ${errorCode.solutions.map(solution => `<li>${solution}</li>`).join('')}
+                            ${errorCode.solutions ? errorCode.solutions.map(solution => `<li>${solution}</li>`).join('') : '<li>No solutions listed</li>'}
                         </ol>
                     </div>
 
                     <div class="detail-section">
                         <h4>⚡ Immediate Actions</h4>
                         <ul class="urgent-list">
-                            ${errorCode.immediateActions.map(action => `<li>${action}</li>`).join('')}
+                            ${errorCode.immediateActions ? errorCode.immediateActions.map(action => `<li>${action}</li>`).join('') : '<li>No immediate actions listed</li>'}
                         </ul>
                     </div>
 
                     <div class="detail-section">
                         <h4>🛡️ Safety Precautions</h4>
                         <ul class="safety-list">
-                            ${errorCode.safetyPrecautions.map(precaution => `<li>${precaution}</li>`).join('')}
+                            ${errorCode.safetyPrecautions ? errorCode.safetyPrecautions.map(precaution => `<li>${precaution}</li>`).join('') : '<li>No safety precautions listed</li>'}
                         </ul>
                     </div>
 
                     <div class="detail-section">
                         <h4>🔧 Required Tools</h4>
                         <div class="tools-list">
-                            ${errorCode.requiredTools.map(tool => `<span class="tool-tag">${tool}</span>`).join('')}
+                            ${errorCode.requiredTools ? errorCode.requiredTools.map(tool => `<span class="tool-tag">${tool}</span>`).join('') : '<span class="tool-tag">No specific tools listed</span>'}
                         </div>
                     </div>
 
@@ -324,6 +333,8 @@ class ErrorCodeManager {
         // Use existing notification system or create simple alert
         if (window.app && typeof window.app.showNotification === 'function') {
             window.app.showNotification(message, type);
+        } else if (typeof showNotification === 'function') {
+            showNotification(message, type);
         } else {
             // Fallback notification
             alert(message);
