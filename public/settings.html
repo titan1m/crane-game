@@ -7,35 +7,166 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Crane Error Finder</h1>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="entry-mode.html" class="nav-link">Report Error</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-logo">🏗️ CraneError Finder</h1>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="entry-mode.html" class="nav-link">Report Error</a>
+                    <a href="reports.html" class="nav-link">Reports</a>
+                    <a href="settings.html" class="nav-link active">Settings</a>
+                    <button onclick="logout()" class="btn btn-secondary">Logout</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
-        <h1>Settings</h1>
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>⚙️ Settings</h1>
+                    <p class="page-subtitle">Manage your account preferences and application settings</p>
+                </div>
 
-        <div class="form-container">
-            <h2>User Information</h2>
-            <div id="userInfo">
-                <!-- User info will be loaded here -->
+                <div class="settings-grid">
+                    <div class="settings-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>👤 Account Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="userInfo" class="user-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Username:</span>
+                                        <span class="info-value" data-user="username">Loading...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Member Since:</span>
+                                        <span class="info-value" id="memberSince">Loading...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Last Login:</span>
+                                        <span class="info-value" id="lastLogin">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>🔔 Notification Preferences</h3>
+                            </div>
+                            <div class="card-body">
+                                <form class="notification-settings">
+                                    <div class="setting-item">
+                                        <label class="setting-label">
+                                            <input type="checkbox" checked> Email Notifications
+                                        </label>
+                                        <p class="setting-description">Receive email alerts for new errors</p>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="setting-label">
+                                            <input type="checkbox" checked> Critical Error Alerts
+                                        </label>
+                                        <p class="setting-description">Immediate notifications for critical errors</p>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="setting-label">
+                                            <input type="checkbox"> Weekly Reports
+                                        </label>
+                                        <p class="setting-description">Weekly summary of crane performance</p>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Save Preferences</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>🎨 Interface Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <form class="interface-settings">
+                                    <div class="setting-item">
+                                        <label class="setting-label">Theme</label>
+                                        <select class="form-control form-select">
+                                            <option>Light Theme</option>
+                                            <option>Dark Theme</option>
+                                            <option>Auto (System)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="setting-label">Language</label>
+                                        <select class="form-control form-select">
+                                            <option>English</option>
+                                            <option>Spanish</option>
+                                            <option>French</option>
+                                            <option>German</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="setting-label">Results Per Page</label>
+                                        <select class="form-control form-select">
+                                            <option>10</option>
+                                            <option>25</option>
+                                            <option>50</option>
+                                            <option>100</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="card danger-zone">
+                            <div class="card-header">
+                                <h3>⚠️ Danger Zone</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="danger-actions">
+                                    <div class="danger-item">
+                                        <h4>Export All Data</h4>
+                                        <p>Download a complete backup of your error reports</p>
+                                        <button class="btn btn-warning">📥 Export Data</button>
+                                    </div>
+                                    
+                                    <div class="danger-item">
+                                        <h4>Delete Account</h4>
+                                        <p>Permanently remove your account and all data</p>
+                                        <button class="btn btn-danger">🗑️ Delete Account</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div style="margin-top: 2rem;">
-                <h2>Actions</h2>
-                <button onclick="logout()" class="btn btn-danger">Logout</button>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update user info
+            const memberSince = document.getElementById('memberSince');
+            const lastLogin = document.getElementById('lastLogin');
+            
+            memberSince.textContent = new Date().toLocaleDateString();
+            lastLogin.textContent = new Date().toLocaleString();
+        });
+    </script>
 </body>
 </html>
