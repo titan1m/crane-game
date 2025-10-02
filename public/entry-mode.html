@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Error - Crane Error Finder</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">Crane Error Finder</h1>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Report Crane Error</h1>
+        <p>Choose how you want to report the error:</p>
+
+        <div class="scan-options">
+            <a href="qr-scanner.html" class="option-card">
+                <h3>QR Code Scan</h3>
+                <p>Scan crane QR code for automatic identification</p>
+            </a>
+            <a href="manual-entry.html" class="option-card">
+                <h3>Manual Entry</h3>
+                <p>Enter crane details manually</p>
+            </a>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
