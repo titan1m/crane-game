@@ -60,10 +60,28 @@ const craneErrorSchema = new mongoose.Schema({
 
 const CraneError = mongoose.model('CraneError', craneErrorSchema);
 
+// Error Code Database Schema
+const errorCodeSchema = new mongoose.Schema({
+    errorCode: { type: String, required: true, unique: true },
+    errorType: { type: String, required: true },
+    severity: { type: String, required: true, enum: ['Low', 'Medium', 'High', 'Critical'] },
+    description: { type: String, required: true },
+    symptoms: [String],
+    possibleCauses: [String],
+    troubleshootingSteps: [String],
+    requiredTools: [String],
+    estimatedRepairTime: String,
+    safetyPrecautions: [String],
+    createdAt: { type: Date, default: Date.now }
+});
+
+const ErrorCode = mongoose.model('ErrorCode', errorCodeSchema);
+
 // In-memory storage fallback
 let memoryStorage = {
     users: [],
-    errors: []
+    errors: [],
+    errorCodes: []
 };
 
 // Authentication middleware
@@ -400,6 +418,89 @@ app.delete('/api/errors/:id', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error deleting:', error);
         res.status(500).json({ error: 'Failed to delete error' });
+    }
+});
+
+// Error Code Database API Routes
+app.get('/api/error-codes', requireAuth, async (req, res) => {
+    try {
+        const { search, errorType, severity } = req.query;
+        let filter = {};
+        
+        console.log('Search request:', { search, errorType, severity });
+        
+        if (isMongoConnected()) {
+            if (search) {
+                filter.$or = [
+                    { errorCode: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } },
+                    { symptoms: { $in: [new RegExp(search, 'i')] } }
+                ];
+            }
+            if (errorType) filter.errorType = errorType;
+            if (severity) filter.severity = severity;
+            
+            const errorCodes = await ErrorCode.find(filter).sort({ errorCode: 1 });
+            console.log('Found error codes:', errorCodes.length);
+            
+            res.json(errorCodes);
+        } else {
+            // In-memory storage implementation
+            let errorCodes = [...memoryStorage.errorCodes];
+            
+            if (search) {
+                const searchLower = search.toLowerCase();
+                errorCodes = errorCodes.filter(code => 
+                    code.errorCode.toLowerCase().includes(searchLower) ||
+                    code.description.toLowerCase().includes(searchLower) ||
+                    code.symptoms.some(symptom => symptom.toLowerCase().includes(searchLower))
+                );
+            }
+            if (errorType) {
+                errorCodes = errorCodes.filter(code => code.errorType === errorType);
+            }
+            if (severity) {
+                errorCodes = errorCodes.filter(code => code.severity === severity);
+            }
+            
+            errorCodes.sort((a, b) => a.errorCode.localeCompare(b.errorCode));
+            console.log('Found error codes (memory):', errorCodes.length);
+            
+            res.json(errorCodes);
+        }
+    } catch (error) {
+        console.error('Error fetching error codes:', error);
+        res.status(500).json({ error: 'Failed to fetch error codes' });
+    }
+});
+
+app.get('/api/error-codes/:code', requireAuth, async (req, res) => {
+    try {
+        if (isMongoConnected()) {
+            const errorCode = await ErrorCode.findOne({ 
+                errorCode: req.params.code.toUpperCase() 
+            });
+            
+            if (!errorCode) {
+                return res.status(404).json({ error: 'Error code not found' });
+            }
+            
+            res.json(errorCode);
+        } else {
+            // In-memory storage implementation
+            const errorCode = memoryStorage.errorCodes.find(
+                code => code.errorCode.toUpperCase() === req.params.code.toUpperCase()
+            );
+            
+            if (!errorCode) {
+                return res.status(404).json({ error: 'Error code not found' });
+            }
+            
+            res.json(errorCode);
+        }
+    } catch (error) {
+        console.error('Error fetching error code:', error);
+        res.status(500).json({ error: 'Failed to fetch error code' });
     }
 });
 
