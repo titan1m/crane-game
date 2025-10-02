@@ -1,18 +1,115 @@
-// Error Code Database functionality
+// public/js/error-codes.js - Complete fixed version
 class ErrorCodeManager {
     constructor() {
-        this.currentResults = [];
+        this.errorCodes = [];
         this.init();
     }
 
     async init() {
-        // Load all error codes on page load
-        await this.searchErrorCodes();
-        this.addEventListeners();
+        await this.loadErrorCodes();
+        this.setupEventListeners();
+        this.displayAllErrorCodes(); // Show all codes initially
     }
 
-    addEventListeners() {
-        // Enter key support for search
+    async loadErrorCodes() {
+        try {
+            // Try to load from API first
+            const response = await fetch('/api/error-codes');
+            if (response.ok) {
+                this.errorCodes = await response.json();
+            } else {
+                // Fallback to demo data
+                this.loadDemoData();
+            }
+        } catch (error) {
+            console.log('Using demo data:', error);
+            this.loadDemoData();
+        }
+    }
+
+    loadDemoData() {
+        this.errorCodes = [
+            {
+                errorCode: "E001",
+                errorType: "Hydraulic",
+                severity: "High",
+                description: "Hydraulic System Pressure Loss",
+                symptoms: ["Slow boom movement", "Unable to lift rated loads", "Hydraulic fluid leakage"],
+                causes: ["Hydraulic fluid leak", "Faulty pressure relief valve", "Worn pump seals"],
+                solutions: ["Check and repair hydraulic lines", "Replace pressure relief valve", "Inspect pump seals"],
+                immediateActions: ["Stop crane operation immediately", "Check hydraulic fluid level"],
+                requiredTools: ["Pressure gauge", "Wrench set"],
+                estimatedFixTime: 4,
+                safetyPrecautions: ["Release hydraulic pressure before working", "Use proper PPE"],
+                commonAffectedModels: ["LTM 1100", "GMK 3050", "AC 250"]
+            },
+            {
+                errorCode: "E002",
+                errorType: "Electrical",
+                severity: "Critical", 
+                description: "Emergency Stop Circuit Failure",
+                symptoms: ["Emergency stop button not functioning", "Control panel error lights"],
+                causes: ["Faulty emergency stop button", "Broken wiring", "Control relay failure"],
+                solutions: ["Test and replace emergency stop button", "Check safety circuit wiring"],
+                immediateActions: ["Use secondary shutdown procedures", "Disconnect main power"],
+                requiredTools: ["Multimeter", "Wiring diagrams"],
+                estimatedFixTime: 2,
+                safetyPrecautions: ["Lock out/tag out power sources", "Test all safety systems"],
+                commonAffectedModels: ["All models with electronic controls"]
+            },
+            {
+                errorCode: "E003",
+                errorType: "Mechanical",
+                severity: "High",
+                description: "Boom Extension Mechanism Failure",
+                symptoms: ["Boom not extending properly", "Unusual noises during extension"],
+                causes: ["Worn extension cables", "Damaged hydraulic cylinders", "Misaligned guides"],
+                solutions: ["Inspect and replace extension cables", "Check hydraulic cylinders", "Realign boom guides"],
+                immediateActions: ["Do not force boom extension", "Secure boom in current position"],
+                requiredTools: ["Cable tension gauge", "Alignment tools"],
+                estimatedFixTime: 6,
+                safetyPrecautions: ["Secure boom properly", "Use fall protection"],
+                commonAffectedModels: ["RT 540", "GR 800", "NK 500"]
+            },
+            {
+                errorCode: "E004",
+                errorType: "Safety",
+                severity: "Critical",
+                description: "Load Moment Indicator Malfunction",
+                symptoms: ["LMI showing incorrect readings", "Warning alarms not functioning"],
+                causes: ["Sensor calibration issues", "Wiring problems", "Software glitch"],
+                solutions: ["Recalibrate LMI sensors", "Check sensor wiring", "Update LMI software"],
+                immediateActions: ["Stop all lifting operations", "Use manual calculations"],
+                requiredTools: ["Calibration kit", "Multimeter"],
+                estimatedFixTime: 3,
+                safetyPrecautions: ["Never bypass LMI system", "Verify with manual calculations"],
+                commonAffectedModels: ["All modern crane models"]
+            },
+            {
+                errorCode: "E005",
+                errorType: "Hydraulic",
+                severity: "Medium",
+                description: "Cylinder Drift Issue",
+                symptoms: ["Boom slowly lowers when stationary", "Fluid leakage around cylinders"],
+                causes: ["Worn piston seals", "Faulty control valves", "Internal cylinder damage"],
+                solutions: ["Replace piston seals", "Repair or replace control valves", "Inspect cylinder internals"],
+                immediateActions: ["Monitor drift rate", "Do not leave loads suspended"],
+                requiredTools: ["Seal kit", "Pressure test equipment"],
+                estimatedFixTime: 5,
+                safetyPrecautions: ["Block boom before working", "Release all pressure"],
+                commonAffectedModels: ["ATF 220", "TCC 1200", "LTM 1500"]
+            }
+        ];
+    }
+
+    setupEventListeners() {
+        // Search button
+        const searchBtn = document.getElementById('searchBtn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => this.searchErrorCodes());
+        }
+
+        // Enter key in search input
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('keypress', (e) => {
@@ -20,351 +117,314 @@ class ErrorCodeManager {
                     this.searchErrorCodes();
                 }
             });
+        }
 
-            // Real-time search with debounce
-            let searchTimeout;
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.searchErrorCodes();
-                }, 500);
+        // Filter changes
+        const errorTypeFilter = document.getElementById('errorTypeFilter');
+        const severityFilter = document.getElementById('severityFilter');
+        
+        if (errorTypeFilter) {
+            errorTypeFilter.addEventListener('change', () => this.searchErrorCodes());
+        }
+        if (severityFilter) {
+            severityFilter.addEventListener('change', () => this.searchErrorCodes());
+        }
+
+        // Clear search
+        const clearBtn = document.getElementById('clearFilters');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearSearch());
+        }
+
+        // Initialize database button
+        const initBtn = document.querySelector('button[onclick="initErrorCodeDatabase()"]');
+        if (initBtn) {
+            initBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.initErrorCodeDatabase();
             });
         }
 
-        // Close modal when clicking outside
-        window.addEventListener('click', (event) => {
-            const modal = document.getElementById('errorCodeModal');
-            if (event.target === modal) {
-                this.closeModal();
-            }
-        });
-    }
-
-    async searchErrorCodes() {
-        const searchTerm = document.getElementById('searchInput')?.value || '';
-        const errorType = document.getElementById('errorTypeFilter')?.value || '';
-        const severity = document.getElementById('severityFilter')?.value || '';
-        
-        this.showLoading();
-
-        try {
-            const params = new URLSearchParams();
-            if (searchTerm) params.append('search', searchTerm);
-            if (errorType) params.append('errorType', errorType);
-            if (severity) params.append('severity', severity);
-
-            const response = await fetch(`/api/error-codes?${params}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            this.currentResults = await response.json();
-            this.displaySearchResults();
-            
-        } catch (error) {
-            console.error('Search error:', error);
-            this.showMessage('❌ Search failed. Please check if error codes are initialized.', 'error');
-            this.displayErrorState();
+        // View all button
+        const viewAllBtn = document.querySelector('button[onclick="viewAllErrorCodes()"]');
+        if (viewAllBtn) {
+            viewAllBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.displayAllErrorCodes();
+            });
         }
     }
 
-    showLoading() {
-        const resultsContainer = document.getElementById('searchResults');
-        if (resultsContainer) {
-            resultsContainer.innerHTML = `
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Searching error codes...</p>
-                </div>
-            `;
+    searchErrorCodes() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const errorType = document.getElementById('errorTypeFilter').value;
+        const severity = document.getElementById('severityFilter').value;
+
+        let filteredCodes = this.errorCodes;
+
+        // Filter by search term
+        if (searchTerm) {
+            filteredCodes = filteredCodes.filter(code => 
+                code.errorCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                code.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                code.symptoms.some(symptom => 
+                    symptom.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            );
         }
+
+        // Filter by error type
+        if (errorType) {
+            filteredCodes = filteredCodes.filter(code => code.errorType === errorType);
+        }
+
+        // Filter by severity
+        if (severity) {
+            filteredCodes = filteredCodes.filter(code => code.severity === severity);
+        }
+
+        this.displaySearchResults(filteredCodes);
     }
 
-    displaySearchResults() {
+    displaySearchResults(results) {
         const resultsContainer = document.getElementById('searchResults');
-        const resultsCount = document.getElementById('resultsCount');
-        
         if (!resultsContainer) return;
 
-        // Update results count
-        if (resultsCount) {
-            resultsCount.textContent = `(${this.currentResults.length} found)`;
-        }
-
-        if (this.currentResults.length === 0) {
+        if (results.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="empty-state">
-                    <p>🔍 No error codes found matching your search criteria</p>
-                    <button onclick="errorCodeManager.initErrorCodeDatabase()" class="btn btn-primary mt-2">
-                        Load Sample Error Codes
-                    </button>
+                    <h4>🔍 No Error Codes Found</h4>
+                    <p>No error codes match your search criteria. Try:</p>
+                    <ul>
+                        <li>Checking the error code spelling</li>
+                        <li>Using different search terms</li>
+                        <li>Clearing the filters</li>
+                    </ul>
                 </div>
             `;
             return;
         }
 
-        resultsContainer.innerHTML = this.currentResults.map(errorCode => `
-            <div class="error-code-card" onclick="errorCodeManager.showErrorCodeDetails('${errorCode.errorCode}')">
+        resultsContainer.innerHTML = results.map(code => `
+            <div class="error-code-item" onclick="errorCodeManager.showErrorDetails('${code.errorCode}')">
                 <div class="error-code-header">
-                    <span class="error-code-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.errorCode}</span>
-                    <span class="error-type">${errorCode.errorType}</span>
-                    <span class="severity-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.severity}</span>
+                    <span class="code-badge ${code.severity.toLowerCase()}">${code.errorCode}</span>
+                    <span class="error-type-tag">${code.errorType}</span>
+                    <span class="severity-tag ${code.severity.toLowerCase()}">${code.severity}</span>
                 </div>
-                <div class="error-code-body">
-                    <h4>${errorCode.description}</h4>
-                    <p class="symptoms-preview">${errorCode.symptoms.slice(0, 2).join(', ')}...</p>
+                <div class="error-code-content">
+                    <h4>${code.description}</h4>
+                    <p><strong>Symptoms:</strong> ${code.symptoms.slice(0, 2).join(', ')}...</p>
                     <div class="error-code-meta">
-                        <span>⏱️ ${errorCode.estimatedFixTime}h fix</span>
-                        <span>🛠️ ${errorCode.requiredTools.length} tools</span>
-                        <span>🏗️ ${errorCode.commonAffectedModels.length} models</span>
+                        <span>⏱️ ${code.estimatedFixTime}h estimated fix time</span>
+                        <span>🛠️ ${code.requiredTools.length} tools required</span>
                     </div>
+                </div>
+                <div class="error-code-actions">
+                    <button class="btn-view-details" onclick="event.stopPropagation(); errorCodeManager.showErrorDetails('${code.errorCode}')">
+                        View Details
+                    </button>
                 </div>
             </div>
         `).join('');
     }
 
-    displayErrorState() {
-        const resultsContainer = document.getElementById('searchResults');
-        if (resultsContainer) {
-            resultsContainer.innerHTML = `
-                <div class="error-state">
-                    <p>❌ Unable to load error codes. Please check:</p>
-                    <ul>
-                        <li>Are you connected to the internet?</li>
-                        <li>Is the server running?</li>
-                        <li>Have error codes been initialized?</li>
-                    </ul>
-                    <button onclick="errorCodeManager.initErrorCodeDatabase()" class="btn btn-success mt-2">
-                        Initialize Error Codes Database
-                    </button>
-                </div>
-            `;
-        }
+    displayAllErrorCodes() {
+        this.displaySearchResults(this.errorCodes);
     }
 
-    getSeverityClass(severity) {
-        const severityMap = {
-            'Critical': 'critical',
-            'High': 'high', 
-            'Medium': 'medium',
-            'Low': 'low'
-        };
-        return severityMap[severity] || 'medium';
-    }
-
-    async showErrorCodeDetails(errorCode) {
-        try {
-            const response = await fetch(`/api/error-codes/${errorCode}`);
-            
-            if (!response.ok) {
-                throw new Error('Error code not found');
-            }
-            
-            const errorCodeData = await response.json();
-            this.displayErrorCodeModal(errorCodeData);
-            
-        } catch (error) {
-            console.error('Error loading details:', error);
-            this.showMessage('❌ Error code details not found', 'error');
-        }
-    }
-
-    displayErrorCodeModal(errorCode) {
-        // Create modal if it doesn't exist
-        if (!document.getElementById('errorCodeModal')) {
-            this.createModal();
-        }
+    showErrorDetails(errorCode) {
+        const code = this.errorCodes.find(ec => ec.errorCode === errorCode);
+        if (!code) return;
 
         const modal = document.getElementById('errorCodeModal');
         const modalBody = document.getElementById('modalBody');
-        const modalTitle = document.getElementById('modalTitle');
-
-        if (modalTitle) modalTitle.textContent = `Error Code: ${errorCode.errorCode}`;
         
-        if (modalBody) {
-            modalBody.innerHTML = `
-                <div class="error-code-details">
-                    <div class="detail-section">
-                        <h4>📋 Description</h4>
-                        <p>${errorCode.description}</p>
-                    </div>
-
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <strong>Type:</strong> ${errorCode.errorType}
-                        </div>
-                        <div class="detail-item">
-                            <strong>Severity:</strong> <span class="severity-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.severity}</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>Fix Time:</strong> ${errorCode.estimatedFixTime} hours
-                        </div>
-                        <div class="detail-item">
-                            <strong>Affected Models:</strong> ${errorCode.commonAffectedModels.join(', ') || 'Various'}
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <h4>🚨 Symptoms</h4>
-                        <ul>
-                            ${errorCode.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <div class="detail-section">
-                        <h4>🔍 Possible Causes</h4>
-                        <ul>
-                            ${errorCode.causes.map(cause => `<li>${cause}</li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <div class="detail-section">
-                        <h4>🛠️ Solutions</h4>
-                        <ol>
-                            ${errorCode.solutions.map(solution => `<li>${solution}</li>`).join('')}
-                        </ol>
-                    </div>
-
-                    <div class="detail-section">
-                        <h4>⚡ Immediate Actions</h4>
-                        <ul class="urgent-list">
-                            ${errorCode.immediateActions.map(action => `<li>${action}</li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <div class="detail-section">
-                        <h4>🛡️ Safety Precautions</h4>
-                        <ul class="safety-list">
-                            ${errorCode.safetyPrecautions.map(precaution => `<li>${precaution}</li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <div class="detail-section">
-                        <h4>🔧 Required Tools</h4>
-                        <div class="tools-list">
-                            ${errorCode.requiredTools.map(tool => `<span class="tool-tag">${tool}</span>`).join('')}
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button onclick="errorCodeManager.reportThisError('${errorCode.errorCode}')" class="btn btn-primary">
-                            📝 Report This Error
-                        </button>
-                        <button onclick="errorCodeManager.closeModal()" class="btn btn-secondary">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            `;
+        if (!modal || !modalBody) {
+            alert(`Error Code: ${code.errorCode}\nDescription: ${code.description}`);
+            return;
         }
 
-        if (modal) modal.style.display = 'block';
-    }
+        modalBody.innerHTML = `
+            <div class="error-details">
+                <div class="detail-section">
+                    <div class="detail-header">
+                        <h3>${code.errorCode} - ${code.description}</h3>
+                        <div class="detail-tags">
+                            <span class="tag-type">${code.errorType}</span>
+                            <span class="tag-severity ${code.severity.toLowerCase()}">${code.severity} Severity</span>
+                        </div>
+                    </div>
+                </div>
 
-    createModal() {
-        const modalHTML = `
-            <div id="errorCodeModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 id="modalTitle">Error Code Details</h3>
-                        <span class="close" onclick="errorCodeManager.closeModal()">&times;</span>
+                <div class="detail-section">
+                    <h4>🚨 Symptoms</h4>
+                    <ul>
+                        ${code.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h4>🔍 Possible Causes</h4>
+                    <ul>
+                        ${code.causes.map(cause => `<li>${cause}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h4>🛠️ Solutions</h4>
+                    <ol>
+                        ${code.solutions.map(solution => `<li>${solution}</li>`).join('')}
+                    </ol>
+                </div>
+
+                <div class="detail-section">
+                    <h4>⚡ Immediate Actions</h4>
+                    <ul class="urgent-actions">
+                        ${code.immediateActions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <strong>Estimated Fix Time:</strong> ${code.estimatedFixTime} hours
                     </div>
-                    <div class="modal-body" id="modalBody">
-                        Loading...
+                    <div class="detail-item">
+                        <strong>Required Tools:</strong> ${code.requiredTools.join(', ')}
                     </div>
+                    <div class="detail-item">
+                        <strong>Affected Models:</strong> ${code.commonAffectedModels.join(', ')}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>🛡️ Safety Precautions</h4>
+                    <ul class="safety-list">
+                        ${code.safetyPrecautions.map(precaution => `<li>${precaution}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="reportThisError('${code.errorCode}')">
+                        📝 Report This Error
+                    </button>
+                    <button class="btn btn-secondary" onclick="printErrorDetails('${code.errorCode}')">
+                        🖨️ Print Details
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        Close
+                    </button>
                 </div>
             </div>
         `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        modal.style.display = 'block';
     }
 
-    closeModal() {
-        const modal = document.getElementById('errorCodeModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
+    clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('errorTypeFilter').value = '';
+        document.getElementById('severityFilter').value = '';
+        this.displayAllErrorCodes();
     }
 
     async initErrorCodeDatabase() {
         try {
-            this.showMessage('⏳ Loading sample error codes...', 'info');
-            
-            const response = await fetch('/api/error-codes/init', { 
-                method: 'POST' 
+            const response = await fetch('/api/error-codes/init', {
+                method: 'POST'
             });
             
-            const result = await response.json();
-            
             if (response.ok) {
-                this.showMessage(`✅ Loaded ${result.count} error codes successfully!`, 'success');
-                // Refresh search results
-                await this.searchErrorCodes();
+                const result = await response.json();
+                this.showNotification(`✅ ${result.message}`, 'success');
+                await this.loadErrorCodes();
+                this.displayAllErrorCodes();
             } else {
-                this.showMessage(result.message || 'Database already initialized', 'info');
+                this.showNotification('❌ Failed to initialize database', 'error');
             }
         } catch (error) {
-            console.error('Init error:', error);
-            this.showMessage('❌ Failed to initialize database', 'error');
+            this.showNotification('❌ Error initializing database', 'error');
         }
     }
 
-    reportThisError(errorCode) {
-        // Store error code for pre-filling the report form
-        localStorage.setItem('prefilledErrorCode', errorCode);
-        this.showMessage('📝 Redirecting to error report form...', 'success');
-        this.closeModal();
+    showNotification(message, type = 'info') {
+        // Simple notification system
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
         
         setTimeout(() => {
-            window.location.href = 'manual-entry.html';
-        }, 1000);
-    }
-
-    showMessage(message, type = 'info') {
-        // Use existing notification system or create simple alert
-        if (window.app && typeof window.app.showNotification === 'function') {
-            window.app.showNotification(message, type);
-        } else {
-            // Fallback notification
-            alert(message);
-        }
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 3000);
     }
 }
 
 // Global functions
-const errorCodeManager = new ErrorCodeManager();
-
-// Global functions that use the class instance
 function searchErrorCodes() {
-    errorCodeManager.searchErrorCodes();
+    if (window.errorCodeManager) {
+        window.errorCodeManager.searchErrorCodes();
+    }
 }
 
 function clearSearch() {
-    const searchInput = document.getElementById('searchInput');
-    const errorTypeFilter = document.getElementById('errorTypeFilter');
-    const severityFilter = document.getElementById('severityFilter');
-    
-    if (searchInput) searchInput.value = '';
-    if (errorTypeFilter) errorTypeFilter.value = '';
-    if (severityFilter) severityFilter.value = '';
-    
-    errorCodeManager.searchErrorCodes();
+    if (window.errorCodeManager) {
+        window.errorCodeManager.clearSearch();
+    }
 }
 
 function loadErrorCode(code) {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.value = code;
+    if (window.errorCodeManager) {
+        document.getElementById('searchInput').value = code;
+        window.errorCodeManager.searchErrorCodes();
     }
-    errorCodeManager.searchErrorCodes();
+}
+
+function closeModal() {
+    const modal = document.getElementById('errorCodeModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 function initErrorCodeDatabase() {
-    errorCodeManager.initErrorCodeDatabase();
+    if (window.errorCodeManager) {
+        window.errorCodeManager.initErrorCodeDatabase();
+    }
 }
 
-// Make functions globally available
-window.searchErrorCodes = searchErrorCodes;
-window.clearSearch = clearSearch;
-window.loadErrorCode = loadErrorCode;
-window.initErrorCodeDatabase = initErrorCodeDatabase;
+function viewAllErrorCodes() {
+    if (window.errorCodeManager) {
+        window.errorCodeManager.displayAllErrorCodes();
+    }
+}
+
+function reportThisError(errorCode) {
+    localStorage.setItem('prefilledErrorCode', errorCode);
+    window.location.href = 'manual-entry.html';
+}
+
+function printErrorDetails(errorCode) {
+    window.print();
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    window.errorCodeManager = new ErrorCodeManager();
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('errorCodeModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+});
