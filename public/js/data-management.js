@@ -135,28 +135,49 @@ async function addSampleData(size) {
     
     try {
         let addedCount = 0;
+        let failedCount = 0;
         
         for (const errorData of errors) {
-            const response = await fetch('/api/errors', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(errorData)
-            });
-            
-            if (response.ok) {
-                addedCount++;
+            try {
+                const response = await fetch('/api/errors', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(errorData)
+                });
+                
+                if (response.ok) {
+                    addedCount++;
+                } else {
+                    failedCount++;
+                }
+            } catch (error) {
+                failedCount++;
             }
         }
         
-        app.showNotification(`✅ Added ${addedCount} sample errors successfully!`, 'success');
+        let message = `✅ Added ${addedCount} sample errors successfully!`;
+        if (failedCount > 0) {
+            message += ` (${failedCount} failed)`;
+        }
+        
+        if (window.app && window.app.showNotification) {
+            window.app.showNotification(message, 'success');
+        } else {
+            alert(message);
+        }
+        
         loadDataStatus();
         loadSamplePreview();
         
     } catch (error) {
         console.error('Error adding sample data:', error);
-        app.showNotification('❌ Failed to add sample data', 'error');
+        if (window.app && window.app.showNotification) {
+            window.app.showNotification('❌ Failed to add sample data', 'error');
+        } else {
+            alert('Failed to add sample data');
+        }
     } finally {
         button.disabled = false;
         button.innerHTML = originalText;
@@ -191,7 +212,11 @@ async function addSingleError(event) {
         });
         
         if (response.ok) {
-            app.showNotification('✅ Error added successfully!', 'success');
+            if (window.app && window.app.showNotification) {
+                window.app.showNotification('✅ Error added successfully!', 'success');
+            } else {
+                alert('Error added successfully!');
+            }
             document.getElementById('quickErrorForm').reset();
             loadDataStatus();
             loadSamplePreview();
@@ -201,7 +226,11 @@ async function addSingleError(event) {
         
     } catch (error) {
         console.error('Error adding single error:', error);
-        app.showNotification('❌ Failed to add error', 'error');
+        if (window.app && window.app.showNotification) {
+            window.app.showNotification('❌ Failed to add error', 'error');
+        } else {
+            alert('Failed to add error');
+        }
     } finally {
         button.disabled = false;
         button.innerHTML = originalText;
@@ -214,60 +243,72 @@ async function loadDataStatus() {
         const response = await fetch('/api/stats');
         if (response.ok) {
             const stats = await response.json();
+            const dataStatus = document.getElementById('dataStatus');
             
-            document.getElementById('dataStatus').innerHTML = `
-                <div class="status-grid">
-                    <div class="status-item">
-                        <span class="status-number">${stats.totalErrors}</span>
-                        <span class="status-label">Total Errors</span>
+            if (dataStatus) {
+                dataStatus.innerHTML = `
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="status-number">${stats.totalErrors}</span>
+                            <span class="status-label">Total Errors</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-number">${stats.openErrors}</span>
+                            <span class="status-label">Open</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-number">${stats.inProgressErrors}</span>
+                            <span class="status-label">In Progress</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-number">${stats.resolvedErrors}</span>
+                            <span class="status-label">Resolved</span>
+                        </div>
                     </div>
-                    <div class="status-item">
-                        <span class="status-number">${stats.openErrors}</span>
-                        <span class="status-label">Open</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-number">${stats.inProgressErrors}</span>
-                        <span class="status-label">In Progress</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-number">${stats.resolvedErrors}</span>
-                        <span class="status-label">Resolved</span>
-                    </div>
-                </div>
-            `;
+                `;
+            }
         }
     } catch (error) {
-        document.getElementById('dataStatus').innerHTML = '<p>Error loading data status</p>';
+        const dataStatus = document.getElementById('dataStatus');
+        if (dataStatus) {
+            dataStatus.innerHTML = '<p>Error loading data status</p>';
+        }
     }
 }
 
 // Load sample preview
 async function loadSamplePreview() {
     try {
-        const response = await fetch('/api/errors?limit=3');
+        const response = await fetch('/api/errors');
         if (response.ok) {
-            const data = await response.json();
-            const errors = data.errors || data;
+            const errors = await response.json();
+            const samplePreview = document.getElementById('samplePreview');
             
-            if (errors.length > 0) {
-                document.getElementById('samplePreview').innerHTML = `
-                    <div class="preview-list">
-                        ${errors.map(error => `
-                            <div class="preview-item">
-                                <strong>${error.craneId}</strong> - ${error.errorType}
-                                <br>
-                                <small>${error.severity} • ${error.status}</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <p><small>Showing latest ${errors.length} errors</small></p>
-                `;
-            } else {
-                document.getElementById('samplePreview').innerHTML = '<p>No errors yet. Add some sample data!</p>';
+            if (samplePreview) {
+                if (errors.length > 0) {
+                    const recentErrors = errors.slice(0, 3);
+                    samplePreview.innerHTML = `
+                        <div class="preview-list">
+                            ${recentErrors.map(error => `
+                                <div class="preview-item">
+                                    <strong>${error.craneId}</strong> - ${error.errorType}
+                                    <br>
+                                    <small>${error.severity} • ${error.status}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p><small>Showing latest ${recentErrors.length} errors</small></p>
+                    `;
+                } else {
+                    samplePreview.innerHTML = '<p>No errors yet. Add some sample data!</p>';
+                }
             }
         }
     } catch (error) {
-        document.getElementById('samplePreview').innerHTML = '<p>Error loading preview</p>';
+        const samplePreview = document.getElementById('samplePreview');
+        if (samplePreview) {
+            samplePreview.innerHTML = '<p>Error loading preview</p>';
+        }
     }
 }
 
@@ -283,14 +324,22 @@ async function clearAllData() {
         });
         
         if (response.ok) {
-            app.showNotification('✅ All data cleared successfully!', 'success');
+            if (window.app && window.app.showNotification) {
+                window.app.showNotification('✅ All data cleared successfully!', 'success');
+            } else {
+                alert('All data cleared successfully!');
+            }
             loadDataStatus();
             loadSamplePreview();
         } else {
             throw new Error('Failed to clear data');
         }
     } catch (error) {
-        app.showNotification('❌ Failed to clear data', 'error');
+        if (window.app && window.app.showNotification) {
+            window.app.showNotification('❌ Failed to clear data', 'error');
+        } else {
+            alert('Failed to clear data');
+        }
     }
 }
 
@@ -306,7 +355,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSamplePreview();
     
     // Setup form handler
-    document.getElementById('quickErrorForm').addEventListener('submit', addSingleError);
+    const quickErrorForm = document.getElementById('quickErrorForm');
+    if (quickErrorForm) {
+        quickErrorForm.addEventListener('submit', addSingleError);
+    }
     
     // Add navigation highlight
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -315,3 +367,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Make functions globally available
+window.addSampleData = addSampleData;
+window.clearAllData = clearAllData;
+window.viewAllErrors = viewAllErrors;
