@@ -7,37 +7,82 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Crane Error Finder</h1>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <a href="settings.html" class="nav-link">Settings</a>
-                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-logo">🏗️ CraneError Finder</h1>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="entry-mode.html" class="nav-link">Report Error</a>
+                    <a href="reports.html" class="nav-link">Reports</a>
+                    <a href="settings.html" class="nav-link">Settings</a>
+                    <button onclick="logout()" class="btn btn-secondary">Logout</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
-        <h1>QR Code Scanner</h1>
-        
-        <div class="qr-scanner-container">
-            <p>Point your camera at the crane's QR code to automatically identify it.</p>
-            
-            <video id="qr-video" autoplay playsinline></video>
-            
-            <div id="qr-result">
-                <p>Initializing camera...</p>
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>📷 QR Code Scanner</h1>
+                    <p class="page-subtitle">Point your camera at the crane's QR code to automatically identify it</p>
+                </div>
+
+                <div class="qr-scanner-container">
+                    <div class="card scanner-card">
+                        <div class="card-header">
+                            <h3>Scanner Ready</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="scanner-frame">
+                                <video id="qr-video" autoplay playsinline></video>
+                            </div>
+                            <div id="qr-result" class="scanner-result">
+                                <div class="scanner-status">
+                                    <div class="spinner"></div>
+                                    <p>Initializing camera...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scanner-actions">
+                        <a href="manual-entry.html" class="btn btn-secondary">
+                            ⌨️ Manual Entry Instead
+                        </a>
+                        <button onclick="toggleFlash()" class="btn btn-warning" id="flashBtn">
+                            🔦 Flash Off
+                        </button>
+                    </div>
+
+                    <div class="card help-card">
+                        <div class="card-header">
+                            <h3>❓ How to Scan</h3>
+                        </div>
+                        <div class="card-body">
+                            <ol class="help-steps">
+                                <li>Ensure good lighting conditions</li>
+                                <li>Hold steady about 6-12 inches from the QR code</li>
+                                <li>Center the QR code within the frame</li>
+                                <li>Wait for automatic detection</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div style="margin-top: 2rem;">
-                <a href="manual-entry.html" class="btn btn-secondary">Manual Entry Instead</a>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script src="js/main.js"></script>
+    <script>
+        function toggleFlash() {
+            const flashBtn = document.getElementById('flashBtn');
+            const isOn = flashBtn.textContent.includes('On');
+            flashBtn.textContent = isOn ? '🔦 Flash Off' : '🔦 Flash On';
+            flashBtn.classList.toggle('btn-warning');
+            flashBtn.classList.toggle('btn-success');
+        }
+    </script>
 </body>
 </html>
