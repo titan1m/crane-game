@@ -17,14 +17,14 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'crane-error-finder-secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/craneDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/craneDB';
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -57,20 +57,16 @@ const requireAuth = (req, res, next) => {
     if (req.session.userId) {
         next();
     } else {
-        res.redirect('/login.html');
+        res.status(401).json({ error: 'Not authenticated' });
     }
 };
 
 // Routes
-
-// Serve main pages
 app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
 
 // API Routes
-
-// User registration
 app.post('/api/signup', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -88,13 +84,13 @@ app.post('/api/signup', async (req, res) => {
         await user.save();
         
         req.session.userId = user._id;
+        req.session.username = user.username;
         res.json({ success: true, message: 'User created successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
 
-// User login
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -117,13 +113,11 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Logout
 app.post('/api/logout', (req, res) => {
     req.session.destroy();
     res.json({ success: true, message: 'Logout successful' });
 });
 
-// Get current user
 app.get('/api/user', (req, res) => {
     if (req.session.userId) {
         res.json({ username: req.session.username });
@@ -133,8 +127,6 @@ app.get('/api/user', (req, res) => {
 });
 
 // Crane Error API Routes
-
-// Create new error report
 app.post('/api/errors', requireAuth, async (req, res) => {
     try {
         const errorData = {
@@ -150,7 +142,6 @@ app.post('/api/errors', requireAuth, async (req, res) => {
     }
 });
 
-// Get all errors
 app.get('/api/errors', requireAuth, async (req, res) => {
     try {
         const errors = await CraneError.find().sort({ timestamp: -1 });
@@ -160,7 +151,6 @@ app.get('/api/errors', requireAuth, async (req, res) => {
     }
 });
 
-// Update error status
 app.put('/api/errors/:id', requireAuth, async (req, res) => {
     try {
         const { status, notes } = req.body;
@@ -185,7 +175,6 @@ app.put('/api/errors/:id', requireAuth, async (req, res) => {
     }
 });
 
-// Get error statistics
 app.get('/api/stats', requireAuth, async (req, res) => {
     try {
         const totalErrors = await CraneError.countDocuments();
@@ -209,7 +198,15 @@ app.get('/api/stats', requireAuth, async (req, res) => {
     }
 });
 
-// Start server
+app.delete('/api/errors/:id', requireAuth, async (req, res) => {
+    try {
+        await CraneError.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Error deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete error' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
