@@ -29,6 +29,10 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            
             const formData = new FormData(this);
             const loginData = {
                 email: formData.get('email'),
@@ -54,16 +58,11 @@
             } catch (error) {
                 console.error('Login error:', error);
                 alert('Login failed. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
             }
         });
-
-        // Redirect if already logged in
-        fetch('/api/user')
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = 'dashboard.html';
-                }
-            });
     </script>
 </body>
 </html>
