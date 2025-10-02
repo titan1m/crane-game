@@ -1,14 +1,12 @@
 class CraneErrorApp {
     constructor() {
         this.currentUser = null;
-        this.notifications = [];
         this.init();
     }
 
     async init() {
         await this.checkAuthentication();
         this.setupGlobalEventListeners();
-        this.showPageAnimation();
     }
 
     async checkAuthentication() {
@@ -41,7 +39,7 @@ class CraneErrorApp {
             }
         });
 
-        if (isAuthenticated) {
+        if (isAuthenticated && this.currentUser) {
             this.updateUserInfo();
         }
     }
@@ -70,21 +68,16 @@ class CraneErrorApp {
         }
     }
 
-    async loadErrors(filters = {}) {
-        this.showLoading('errors-container');
+    async loadErrors() {
         try {
-            const queryString = new URLSearchParams(filters).toString();
-            const response = await fetch(`/api/errors?${queryString}`);
+            const response = await fetch('/api/errors');
             if (response.ok) {
-                const errors = await response.json();
-                this.hideLoading('errors-container');
-                return errors;
+                return await response.json();
             }
             throw new Error('Failed to load errors');
         } catch (error) {
             console.error('Error loading errors:', error);
             this.showNotification('Failed to load errors', 'error');
-            this.hideLoading('errors-container');
             return [];
         }
     }
@@ -146,6 +139,50 @@ class CraneErrorApp {
         }
     }
 
+    async initSampleData() {
+        try {
+            const response = await fetch('/api/init-sample-data', {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                this.showNotification(`✅ ${result.message} (${result.count} errors added)`, 'success');
+                return true;
+            } else {
+                this.showNotification(result.message || 'Data already exists', 'info');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error initializing sample data:', error);
+            this.showNotification('Failed to initialize sample data', 'error');
+            return false;
+        }
+    }
+
+    async clearAllData() {
+        if (!await this.showConfirmation('⚠️ Are you sure you want to delete ALL error data? This action cannot be undone!')) {
+            return false;
+        }
+
+        try {
+            const response = await fetch('/api/errors', {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                this.showNotification('✅ All data cleared successfully', 'success');
+                return true;
+            }
+            throw new Error('Failed to clear data');
+        } catch (error) {
+            console.error('Error clearing data:', error);
+            this.showNotification('Failed to clear data', 'error');
+            return false;
+        }
+    }
+
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -158,10 +195,8 @@ class CraneErrorApp {
 
         document.body.appendChild(notification);
         
-        // Trigger animation
         setTimeout(() => notification.classList.add('show'), 100);
         
-        // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentElement) {
                 notification.classList.remove('show');
@@ -172,46 +207,8 @@ class CraneErrorApp {
 
     async showConfirmation(message) {
         return new Promise((resolve) => {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 10000;
-            `;
-            
-            modal.innerHTML = `
-                <div class="card" style="max-width: 400px; margin: 1rem;">
-                    <div class="card-header">
-                        <h3>Confirmation</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>${message}</p>
-                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                            <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
-                            <button class="btn btn-danger" id="confirmOk">OK</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            document.getElementById('confirmOk').onclick = () => {
-                modal.remove();
-                resolve(true);
-            };
-            
-            document.getElementById('confirmCancel').onclick = () => {
-                modal.remove();
-                resolve(false);
-            };
+            const confirmed = confirm(message);
+            resolve(confirmed);
         });
     }
 
@@ -249,67 +246,23 @@ class CraneErrorApp {
     }
 
     setupGlobalEventListeners() {
-        // Add loading states to all buttons
+        // Add loading states to forms
         document.addEventListener('submit', (e) => {
             const submitBtn = e.target.querySelector('button[type="submit"]');
             if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px;"></div> Processing...';
                 
+                // Revert after 10 seconds if something goes wrong
                 setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = submitBtn.getAttribute('data-original-text') || 'Submit';
-                }, 5000);
+                    if (submitBtn.disabled) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                }, 10000);
             }
         });
-
-        // Add smooth scrolling for anchor links
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('a[href^="#"]')) {
-                e.preventDefault();
-                const target = document.querySelector(e.target.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        });
-    }
-
-    showPageAnimation() {
-        const mainContent = document.querySelector('.main-content');
-        if (mainContent) {
-            mainContent.classList.add('fade-in');
-        }
-    }
-
-    // Chart functionality for statistics
-    renderStatsChart(stats) {
-        const ctx = document.getElementById('statsChart');
-        if (!ctx) return;
-
-        // Simple bar chart implementation
-        const chartData = {
-            labels: ['Total', 'Open', 'In Progress', 'Resolved'],
-            datasets: [{
-                data: [stats.totalErrors, stats.openErrors, stats.inProgressErrors, stats.resolvedErrors],
-                backgroundColor: [
-                    'rgba(67, 97, 238, 0.8)',
-                    'rgba(248, 150, 30, 0.8)',
-                    'rgba(76, 201, 240, 0.8)',
-                    'rgba(39, 174, 96, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(67, 97, 238, 1)',
-                    'rgba(248, 150, 30, 1)',
-                    'rgba(76, 201, 240, 1)',
-                    'rgba(39, 174, 96, 1)'
-                ],
-                borderWidth: 2
-            }]
-        };
-
-        // Simple chart rendering (you can integrate Chart.js for better charts)
-        ctx.innerHTML = '<canvas id="chartCanvas"></canvas>';
     }
 }
 
@@ -320,6 +273,8 @@ const app = new CraneErrorApp();
 window.logout = () => app.logout();
 window.updateErrorStatus = (errorId, status) => app.updateErrorStatus(errorId, status);
 window.deleteErrorReport = (errorId) => app.deleteError(errorId);
+window.initSampleData = () => app.initSampleData();
+window.clearAllData = () => app.clearAllData();
 
 // Page-specific functionality
 document.addEventListener('DOMContentLoaded', () => {
@@ -340,6 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeManualEntry();
     } else if (window.location.pathname.includes('qr-scanner.html')) {
         initializeQRScanner();
+    } else if (window.location.pathname.includes('error-codes.html')) {
+        // Error codes page has its own initialization
     }
 });
 
@@ -352,7 +309,6 @@ async function initializeDashboard() {
 
     if (stats) {
         updateDashboardStats(stats);
-        renderQuickStats(stats);
     }
 
     displayRecentErrors(errors);
@@ -369,41 +325,9 @@ function updateDashboardStats(stats) {
     Object.entries(statsElements).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
-            animateCounter(element, value);
+            element.textContent = value;
         }
     });
-}
-
-function animateCounter(element, target) {
-    let current = 0;
-    const increment = target / 50;
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            element.textContent = target;
-            clearInterval(timer);
-        } else {
-            element.textContent = Math.floor(current);
-        }
-    }, 20);
-}
-
-function renderQuickStats(stats) {
-    const container = document.getElementById('quickStats');
-    if (!container) return;
-
-    const severityStats = stats.severityStats || [];
-    container.innerHTML = severityStats.map(stat => `
-        <div class="card">
-            <div class="card-body">
-                <h4>${stat._id} Errors</h4>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${(stat.count / stats.totalErrors) * 100}%"></div>
-                </div>
-                <span>${stat.count} errors</span>
-            </div>
-        </div>
-    `).join('');
 }
 
 function displayRecentErrors(errors) {
@@ -414,35 +338,28 @@ function displayRecentErrors(errors) {
     
     if (recentErrors.length === 0) {
         container.innerHTML = `
-            <div class="card">
-                <div class="card-body text-center">
-                    <h4>No Errors Reported</h4>
-                    <p>Start by reporting your first crane error</p>
-                    <a href="entry-mode.html" class="btn btn-primary">Report Error</a>
-                </div>
+            <div class="empty-state">
+                <p>No errors reported yet.</p>
+                <a href="manual-entry.html" class="btn btn-primary mt-2">Report First Error</a>
             </div>
         `;
         return;
     }
 
     container.innerHTML = recentErrors.map(error => `
-        <div class="card error-item slide-up">
-            <div class="card-body">
-                <div style="display: flex; justify-content: between; align-items: start; gap: 1rem;">
-                    <div class="error-details" style="flex: 1;">
-                        <h4 style="margin-bottom: 0.5rem;">${error.craneId} - ${error.errorType}</h4>
-                        <p style="color: var(--gray); margin-bottom: 1rem;">${error.description}</p>
-                        <div class="error-meta">
-                            <span class="badge badge-${error.severity.toLowerCase()}">${error.severity}</span>
-                            <span class="badge badge-${error.status === 'Resolved' ? 'success' : error.status === 'In Progress' ? 'warning' : 'danger'}">${error.status}</span>
-                            <span style="color: var(--gray-light);">${app.formatDate(error.timestamp)}</span>
-                        </div>
-                    </div>
-                    <div class="error-actions">
-                        ${error.status !== 'In Progress' ? `<button onclick="updateErrorStatus('${error._id}', 'In Progress')" class="btn btn-warning btn-sm">In Progress</button>` : ''}
-                        ${error.status !== 'Resolved' ? `<button onclick="updateErrorStatus('${error._id}', 'Resolved')" class="btn btn-success btn-sm">Resolve</button>` : ''}
-                    </div>
+        <div class="error-item">
+            <div class="error-details">
+                <h4>${error.craneId} - ${error.errorType}</h4>
+                <p>${error.description}</p>
+                <div class="error-meta">
+                    <span class="badge badge-${error.severity.toLowerCase()}">${error.severity}</span>
+                    <span class="badge badge-${error.status === 'Resolved' ? 'success' : error.status === 'In Progress' ? 'warning' : 'danger'}">${error.status}</span>
+                    <span>${app.formatDate(error.timestamp)}</span>
                 </div>
+            </div>
+            <div class="error-actions">
+                ${error.status !== 'In Progress' ? `<button onclick="updateErrorStatus('${error._id}', 'In Progress')" class="btn btn-warning btn-sm">In Progress</button>` : ''}
+                ${error.status !== 'Resolved' ? `<button onclick="updateErrorStatus('${error._id}', 'Resolved')" class="btn btn-success btn-sm">Resolve</button>` : ''}
             </div>
         </div>
     `).join('');
@@ -455,8 +372,10 @@ async function initializeReports() {
 }
 
 async function loadReportsWithFilters(filters = {}) {
-    const errors = await app.loadErrors(filters);
+    app.showLoading('reportsContent');
+    const errors = await app.loadErrors();
     displayAllErrors(errors);
+    app.hideLoading('reportsContent');
 }
 
 function setupReportsFilters() {
@@ -494,43 +413,45 @@ function displayAllErrors(errors) {
     const container = document.getElementById('allErrors');
     if (!container) return;
 
-    if (errors.length === 0) {
+    // Apply simple client-side filtering
+    const statusFilter = document.getElementById('statusFilter')?.value;
+    const severityFilter = document.getElementById('severityFilter')?.value;
+    
+    let filteredErrors = errors;
+    if (statusFilter) {
+        filteredErrors = filteredErrors.filter(error => error.status === statusFilter);
+    }
+    if (severityFilter) {
+        filteredErrors = filteredErrors.filter(error => error.severity === severityFilter);
+    }
+
+    if (filteredErrors.length === 0) {
         container.innerHTML = `
-            <div class="card">
-                <div class="card-body text-center">
-                    <h4>No Errors Found</h4>
-                    <p>No errors match your current filters</p>
-                </div>
+            <div class="empty-state">
+                <p>No errors found matching your criteria.</p>
             </div>
         `;
         return;
     }
 
-    container.innerHTML = errors.map(error => `
-        <div class="card error-item slide-up">
-            <div class="card-body">
-                <div style="display: flex; justify-content: between; align-items: start; gap: 1rem; flex-wrap: wrap;">
-                    <div class="error-details" style="flex: 1; min-width: 300px;">
-                        <h4 style="margin-bottom: 0.5rem;">${error.craneId} - ${error.errorType}</h4>
-                        <p style="color: var(--gray); margin-bottom: 1rem;">${error.description}</p>
-                        <div class="error-meta">
-                            <span><strong>Reported by:</strong> ${error.reportedBy}</span>
-                            <span><strong>Location:</strong> ${error.location || 'N/A'}</span>
-                            <span><strong>Date:</strong> ${app.formatDate(error.timestamp)}</span>
-                            ${error.resolvedAt ? `<span><strong>Resolved:</strong> ${app.formatDate(error.resolvedAt)}</span>` : ''}
-                        </div>
-                        ${error.notes ? `<p style="margin-top: 1rem;"><strong>Notes:</strong> ${error.notes}</p>` : ''}
-                        <div style="margin-top: 1rem;">
-                            <span class="badge badge-${error.severity.toLowerCase()}">${error.severity} Severity</span>
-                            <span class="badge badge-${error.status === 'Resolved' ? 'success' : error.status === 'In Progress' ? 'warning' : 'danger'}">${error.status}</span>
-                        </div>
-                    </div>
-                    <div class="error-actions">
-                        ${error.status !== 'In Progress' ? `<button onclick="updateErrorStatus('${error._id}', 'In Progress')" class="btn btn-warning btn-sm">In Progress</button>` : ''}
-                        ${error.status !== 'Resolved' ? `<button onclick="updateErrorStatus('${error._id}', 'Resolved')" class="btn btn-success btn-sm">Resolve</button>` : ''}
-                        <button onclick="deleteErrorReport('${error._id}')" class="btn btn-danger btn-sm">Delete</button>
-                    </div>
+    container.innerHTML = filteredErrors.map(error => `
+        <div class="error-item">
+            <div class="error-details">
+                <h4>${error.craneId} - ${error.errorType}</h4>
+                <p>${error.description}</p>
+                <div class="error-meta">
+                    <span><strong>Location:</strong> ${error.location || 'N/A'}</span>
+                    <span><strong>Reported by:</strong> ${error.reportedBy}</span>
+                    <span><strong>Date:</strong> ${app.formatDate(error.timestamp)}</span>
+                    <span class="badge badge-${error.severity.toLowerCase()}">${error.severity}</span>
+                    <span class="badge badge-${error.status === 'Resolved' ? 'success' : error.status === 'In Progress' ? 'warning' : 'danger'}">${error.status}</span>
                 </div>
+                ${error.notes ? `<p><strong>Notes:</strong> ${error.notes}</p>` : ''}
+            </div>
+            <div class="error-actions">
+                ${error.status !== 'In Progress' ? `<button onclick="updateErrorStatus('${error._id}', 'In Progress')" class="btn btn-warning btn-sm">In Progress</button>` : ''}
+                ${error.status !== 'Resolved' ? `<button onclick="updateErrorStatus('${error._id}', 'Resolved')" class="btn btn-success btn-sm">Resolve</button>` : ''}
+                <button onclick="deleteErrorReport('${error._id}')" class="btn btn-danger btn-sm">Delete</button>
             </div>
         </div>
     `).join('');
@@ -542,11 +463,11 @@ function initializeManualEntry() {
     if (form) {
         form.addEventListener('submit', handleErrorSubmit);
         
-        // Pre-fill crane ID from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const craneId = urlParams.get('craneId');
-        if (craneId) {
-            document.getElementById('craneId').value = craneId;
+        // Check for prefilled error code
+        const prefilledCode = localStorage.getItem('prefilledErrorCode');
+        if (prefilledCode) {
+            document.getElementById('craneId').value = prefilledCode;
+            localStorage.removeItem('prefilledErrorCode');
         }
     }
 }
@@ -607,7 +528,7 @@ function initializeQRScanner() {
                     </div>
                 `;
                 
-                // Simulate QR detection
+                // Simulate QR detection for demo
                 setTimeout(simulateQRDetection, 3000);
             })
             .catch(function(error) {
