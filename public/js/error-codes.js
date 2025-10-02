@@ -8,27 +8,28 @@ class ErrorCodeManager {
     async init() {
         // Load all error codes on page load
         await this.searchErrorCodes();
-        
-        // Add event listeners
         this.addEventListeners();
     }
 
     addEventListeners() {
         // Enter key support for search
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.searchErrorCodes();
-            }
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.searchErrorCodes();
+                }
+            });
 
-        // Real-time search with debounce
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                this.searchErrorCodes();
-            }, 500);
-        });
+            // Real-time search with debounce
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.searchErrorCodes();
+                }, 500);
+            });
+        }
 
         // Close modal when clicking outside
         window.addEventListener('click', (event) => {
@@ -40,11 +41,10 @@ class ErrorCodeManager {
     }
 
     async searchErrorCodes() {
-        const searchTerm = document.getElementById('searchInput').value;
-        const errorType = document.getElementById('errorTypeFilter').value;
-        const severity = document.getElementById('severityFilter').value;
+        const searchTerm = document.getElementById('searchInput')?.value || '';
+        const errorType = document.getElementById('errorTypeFilter')?.value || '';
+        const severity = document.getElementById('severityFilter')?.value || '';
         
-        // Show loading state
         this.showLoading();
 
         try {
@@ -52,8 +52,6 @@ class ErrorCodeManager {
             if (searchTerm) params.append('search', searchTerm);
             if (errorType) params.append('errorType', errorType);
             if (severity) params.append('severity', severity);
-
-            console.log('Searching with params:', params.toString());
 
             const response = await fetch(`/api/error-codes?${params}`);
             
@@ -66,33 +64,39 @@ class ErrorCodeManager {
             
         } catch (error) {
             console.error('Search error:', error);
-            this.showMessage('❌ Search failed: ' + error.message, 'error');
+            this.showMessage('❌ Search failed. Please check if error codes are initialized.', 'error');
             this.displayErrorState();
         }
     }
 
     showLoading() {
         const resultsContainer = document.getElementById('searchResults');
-        resultsContainer.innerHTML = `
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Searching error codes...</p>
-            </div>
-        `;
+        if (resultsContainer) {
+            resultsContainer.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Searching error codes...</p>
+                </div>
+            `;
+        }
     }
 
     displaySearchResults() {
         const resultsContainer = document.getElementById('searchResults');
         const resultsCount = document.getElementById('resultsCount');
         
+        if (!resultsContainer) return;
+
         // Update results count
-        resultsCount.textContent = `(${this.currentResults.length} found)`;
+        if (resultsCount) {
+            resultsCount.textContent = `(${this.currentResults.length} found)`;
+        }
 
         if (this.currentResults.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="empty-state">
                     <p>🔍 No error codes found matching your search criteria</p>
-                    <button onclick="initErrorCodeDatabase()" class="btn btn-primary">
+                    <button onclick="errorCodeManager.initErrorCodeDatabase()" class="btn btn-primary mt-2">
                         Load Sample Error Codes
                     </button>
                 </div>
@@ -122,19 +126,21 @@ class ErrorCodeManager {
 
     displayErrorState() {
         const resultsContainer = document.getElementById('searchResults');
-        resultsContainer.innerHTML = `
-            <div class="error-state">
-                <p>❌ Unable to load error codes. Please check:</p>
-                <ul>
-                    <li>Are you connected to the internet?</li>
-                    <li>Is the server running?</li>
-                    <li>Have error codes been initialized?</li>
-                </ul>
-                <button onclick="errorCodeManager.initErrorCodeDatabase()" class="btn btn-success">
-                    Initialize Error Codes Database
-                </button>
-            </div>
-        `;
+        if (resultsContainer) {
+            resultsContainer.innerHTML = `
+                <div class="error-state">
+                    <p>❌ Unable to load error codes. Please check:</p>
+                    <ul>
+                        <li>Are you connected to the internet?</li>
+                        <li>Is the server running?</li>
+                        <li>Have error codes been initialized?</li>
+                    </ul>
+                    <button onclick="errorCodeManager.initErrorCodeDatabase()" class="btn btn-success mt-2">
+                        Initialize Error Codes Database
+                    </button>
+                </div>
+            `;
+        }
     }
 
     getSeverityClass(severity) {
@@ -149,7 +155,6 @@ class ErrorCodeManager {
 
     async showErrorCodeDetails(errorCode) {
         try {
-            console.log('Loading error code details for:', errorCode);
             const response = await fetch(`/api/error-codes/${errorCode}`);
             
             if (!response.ok) {
@@ -161,7 +166,7 @@ class ErrorCodeManager {
             
         } catch (error) {
             console.error('Error loading details:', error);
-            this.showMessage('❌ Error code details not found: ' + error.message, 'error');
+            this.showMessage('❌ Error code details not found', 'error');
         }
     }
 
@@ -175,70 +180,86 @@ class ErrorCodeManager {
         const modalBody = document.getElementById('modalBody');
         const modalTitle = document.getElementById('modalTitle');
 
-        modalTitle.textContent = `Error Code: ${errorCode.errorCode}`;
+        if (modalTitle) modalTitle.textContent = `Error Code: ${errorCode.errorCode}`;
         
-        modalBody.innerHTML = `
-            <div class="error-code-details">
-                <div class="detail-section">
-                    <h4>📋 Description</h4>
-                    <p>${errorCode.description}</p>
-                </div>
-
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <strong>Type:</strong> ${errorCode.errorType}
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <div class="error-code-details">
+                    <div class="detail-section">
+                        <h4>📋 Description</h4>
+                        <p>${errorCode.description}</p>
                     </div>
-                    <div class="detail-item">
-                        <strong>Severity:</strong> <span class="severity-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.severity}</span>
+
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <strong>Type:</strong> ${errorCode.errorType}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Severity:</strong> <span class="severity-badge ${this.getSeverityClass(errorCode.severity)}">${errorCode.severity}</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Fix Time:</strong> ${errorCode.estimatedFixTime} hours
+                        </div>
+                        <div class="detail-item">
+                            <strong>Affected Models:</strong> ${errorCode.commonAffectedModels.join(', ') || 'Various'}
+                        </div>
                     </div>
-                    <div class="detail-item">
-                        <strong>Fix Time:</strong> ${errorCode.estimatedFixTime} hours
+
+                    <div class="detail-section">
+                        <h4>🚨 Symptoms</h4>
+                        <ul>
+                            ${errorCode.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
+                        </ul>
                     </div>
-                    <div class="detail-item">
-                        <strong>Affected Models:</strong> ${errorCode.commonAffectedModels.join(', ') || 'Various'}
+
+                    <div class="detail-section">
+                        <h4>🔍 Possible Causes</h4>
+                        <ul>
+                            ${errorCode.causes.map(cause => `<li>${cause}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>🛠️ Solutions</h4>
+                        <ol>
+                            ${errorCode.solutions.map(solution => `<li>${solution}</li>`).join('')}
+                        </ol>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>⚡ Immediate Actions</h4>
+                        <ul class="urgent-list">
+                            ${errorCode.immediateActions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>🛡️ Safety Precautions</h4>
+                        <ul class="safety-list">
+                            ${errorCode.safetyPrecautions.map(precaution => `<li>${precaution}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>🔧 Required Tools</h4>
+                        <div class="tools-list">
+                            ${errorCode.requiredTools.map(tool => `<span class="tool-tag">${tool}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button onclick="errorCodeManager.reportThisError('${errorCode.errorCode}')" class="btn btn-primary">
+                            📝 Report This Error
+                        </button>
+                        <button onclick="errorCodeManager.closeModal()" class="btn btn-secondary">
+                            Close
+                        </button>
                     </div>
                 </div>
+            `;
+        }
 
-                <div class="detail-section">
-                    <h4>🚨 Symptoms</h4>
-                    <ul>
-                        ${errorCode.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="detail-section">
-                    <h4>🔍 Possible Causes</h4>
-                    <ul>
-                        ${errorCode.causes.map(cause => `<li>${cause}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="detail-section">
-                    <h4>🛠️ Solutions</h4>
-                    <ol>
-                        ${errorCode.solutions.map(solution => `<li>${solution}</li>`).join('')}
-                    </ol>
-                </div>
-
-                <div class="detail-section">
-                    <h4>⚡ Immediate Actions</h4>
-                    <ul class="urgent-list">
-                        ${errorCode.immediateActions.map(action => `<li>${action}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="action-buttons">
-                    <button onclick="errorCodeManager.reportThisError('${errorCode.errorCode}')" class="btn btn-primary">
-                        📝 Report This Error
-                    </button>
-                    <button onclick="errorCodeManager.closeModal()" class="btn btn-secondary">
-                        Close
-                    </button>
-                </div>
-            </div>
-        `;
-
-        modal.style.display = 'block';
+        if (modal) modal.style.display = 'block';
     }
 
     createModal() {
@@ -284,7 +305,7 @@ class ErrorCodeManager {
             }
         } catch (error) {
             console.error('Init error:', error);
-            this.showMessage('❌ Failed to initialize database: ' + error.message, 'error');
+            this.showMessage('❌ Failed to initialize database', 'error');
         }
     }
 
@@ -292,6 +313,7 @@ class ErrorCodeManager {
         // Store error code for pre-filling the report form
         localStorage.setItem('prefilledErrorCode', errorCode);
         this.showMessage('📝 Redirecting to error report form...', 'success');
+        this.closeModal();
         
         setTimeout(() => {
             window.location.href = 'manual-entry.html';
@@ -304,23 +326,7 @@ class ErrorCodeManager {
             window.app.showNotification(message, type);
         } else {
             // Fallback notification
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 1rem;
-                background: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#27ae60' : '#3498db'};
-                color: white;
-                border-radius: 5px;
-                z-index: 1000;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 3000);
+            alert(message);
         }
     }
 }
@@ -328,20 +334,28 @@ class ErrorCodeManager {
 // Global functions
 const errorCodeManager = new ErrorCodeManager();
 
-// Simplified global functions that use the class instance
+// Global functions that use the class instance
 function searchErrorCodes() {
     errorCodeManager.searchErrorCodes();
 }
 
 function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('errorTypeFilter').value = '';
-    document.getElementById('severityFilter').value = '';
+    const searchInput = document.getElementById('searchInput');
+    const errorTypeFilter = document.getElementById('errorTypeFilter');
+    const severityFilter = document.getElementById('severityFilter');
+    
+    if (searchInput) searchInput.value = '';
+    if (errorTypeFilter) errorTypeFilter.value = '';
+    if (severityFilter) severityFilter.value = '';
+    
     errorCodeManager.searchErrorCodes();
 }
 
 function loadErrorCode(code) {
-    document.getElementById('searchInput').value = code;
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = code;
+    }
     errorCodeManager.searchErrorCodes();
 }
 
