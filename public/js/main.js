@@ -1,3 +1,4 @@
+// Main Application Class
 class CraneErrorApp {
     constructor() {
         this.currentUser = null;
@@ -184,19 +185,71 @@ class CraneErrorApp {
     }
 
     showNotification(message, type = 'info') {
+        // Remove existing notifications
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
+        notification.className = `notification notification-${type}`;
         notification.innerHTML = `
             <div class="notification-content">
-                <span class="notification-message">${message}</span>
-                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" class="notification-close">&times;</button>
             </div>
         `;
 
+        // Add styles if not already present
+        if (!document.querySelector('#notification-styles')) {
+            const styles = document.createElement('style');
+            styles.id = 'notification-styles';
+            styles.textContent = `
+                .notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 1000;
+                    min-width: 300px;
+                    max-width: 500px;
+                    transform: translateX(400px);
+                    opacity: 0;
+                    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                }
+                .notification.show {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                .notification-content {
+                    padding: 1rem;
+                    border-radius: 4px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                }
+                .notification-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+                .notification-success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+                .notification-error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+                .notification-warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+                .notification-close {
+                    background: none;
+                    border: none;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    margin-left: 1rem;
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+
         document.body.appendChild(notification);
-        
+
+        // Animate in
         setTimeout(() => notification.classList.add('show'), 100);
-        
+
+        // Auto-remove after 5 seconds
         setTimeout(() => {
             if (notification.parentElement) {
                 notification.classList.remove('show');
@@ -269,8 +322,52 @@ class CraneErrorApp {
 // Initialize app
 const app = new CraneErrorApp();
 
-// Global functions
-window.logout = () => app.logout();
+// Global utility functions
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        // Clear any stored data
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Redirect to login page or home page
+        window.location.href = 'index.html';
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Use the app's notification system if available
+    if (app && typeof app.showNotification === 'function') {
+        app.showNotification(message, type);
+    } else {
+        // Fallback notification system
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" class="notification-close">&times;</button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+}
+
+// Make functions globally available
+window.showNotification = showNotification;
+window.logout = logout;
 window.updateErrorStatus = (errorId, status) => app.updateErrorStatus(errorId, status);
 window.deleteErrorReport = (errorId) => app.deleteError(errorId);
 window.initSampleData = () => app.initSampleData();
@@ -283,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-link').forEach(link => {
         if (link.getAttribute('href') === currentPage) {
             link.classList.add('active');
+        } else {
+            link.classList.remove('active');
         }
     });
 
@@ -296,7 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (window.location.pathname.includes('qr-scanner.html')) {
         initializeQRScanner();
     } else if (window.location.pathname.includes('error-codes.html')) {
-        // Error codes page has its own initialization
+        // Error codes page has its own initialization via error-codes.js
+        console.log('Error codes page loaded - error-codes.js will handle initialization');
     }
 });
 
