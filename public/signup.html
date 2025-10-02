@@ -33,6 +33,10 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+            
             const formData = new FormData(this);
             const signupData = {
                 username: formData.get('username'),
@@ -59,16 +63,11 @@
             } catch (error) {
                 console.error('Signup error:', error);
                 alert('Signup failed. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
             }
         });
-
-        // Redirect if already logged in
-        fetch('/api/user')
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = 'dashboard.html';
-                }
-            });
     </script>
 </body>
 </html>
