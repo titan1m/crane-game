@@ -7,33 +7,67 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Crane Error Finder</h1>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <a href="settings.html" class="nav-link">Settings</a>
-                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-logo">🏗️ CraneError Finder</h1>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="entry-mode.html" class="nav-link active">Report Error</a>
+                    <a href="reports.html" class="nav-link">Reports</a>
+                    <a href="settings.html" class="nav-link">Settings</a>
+                    <button onclick="logout()" class="btn btn-secondary">Logout</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
-        <h1>Report Crane Error</h1>
-        <p>Choose how you want to report the error:</p>
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>🚨 Report Crane Error</h1>
+                    <p class="page-subtitle">Choose your preferred method to report a new crane error</p>
+                </div>
 
-        <div class="scan-options">
-            <a href="qr-scanner.html" class="option-card">
-                <h3>QR Code Scan</h3>
-                <p>Scan crane QR code for automatic identification</p>
-            </a>
-            <a href="manual-entry.html" class="option-card">
-                <h3>Manual Entry</h3>
-                <p>Enter crane details manually</p>
-            </a>
-        </div>
+                <div class="scan-options">
+                    <a href="qr-scanner.html" class="card option-card">
+                        <div class="option-icon">📷</div>
+                        <h3>QR Code Scan</h3>
+                        <p>Quickly scan crane QR codes for automatic identification and error reporting</p>
+                        <div class="option-badge">Recommended</div>
+                    </a>
+                    
+                    <a href="manual-entry.html" class="card option-card">
+                        <div class="option-icon">⌨️</div>
+                        <h3>Manual Entry</h3>
+                        <p>Manually enter crane details and error information with our intuitive form</p>
+                        <div class="option-badge">Alternative</div>
+                    </a>
+                </div>
+
+                <div class="card quick-tips">
+                    <div class="card-header">
+                        <h3>💡 Quick Tips</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="tips-grid">
+                            <div class="tip-item">
+                                <span class="tip-number">1</span>
+                                <p>Use QR scanning for fastest error reporting</p>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-number">2</span>
+                                <p>Include detailed descriptions for better tracking</p>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-number">3</span>
+                                <p>Set appropriate severity levels for priority handling</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="js/main.js"></script>
