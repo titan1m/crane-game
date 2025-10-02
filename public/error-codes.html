@@ -34,32 +34,34 @@
                         <h3>🔍 Search Error Codes</h3>
                     </div>
                     <div class="card-body">
-                        <div class="search-controls">
-                            <div class="search-input-group">
-                                <input type="text" id="searchInput" placeholder="Enter error code (e.g., E001) or description" class="form-control">
-                                <button onclick="searchErrorCodes()" class="btn btn-primary">Search</button>
-                                <button onclick="clearSearch()" class="btn btn-secondary">Clear</button>
-                            </div>
-                            
-                            <div class="filter-options">
-                                <select id="errorTypeFilter" class="form-control" onchange="searchErrorCodes()">
-                                    <option value="">All Error Types</option>
-                                    <option value="Mechanical">Mechanical</option>
-                                    <option value="Electrical">Electrical</option>
-                                    <option value="Hydraulic">Hydraulic</option>
-                                    <option value="Software">Software</option>
-                                    <option value="Safety">Safety</option>
-                                </select>
-                                
-                                <select id="severityFilter" class="form-control" onchange="searchErrorCodes()">
-                                    <option value="">All Severities</option>
-                                    <option value="Low">Low</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="High">High</option>
-                                    <option value="Critical">Critical</option>
-                                </select>
-                            </div>
-                        </div>
+                        <!-- Update the search section in public/error-codes.html -->
+<div class="search-controls">
+    <div class="search-input-group">
+        <input type="text" id="searchInput" placeholder="Enter error code (e.g., E001) or description" class="form-control">
+        <button id="searchBtn" class="btn btn-primary">Search</button>
+    </div>
+    
+    <div class="filter-options">
+        <select id="errorTypeFilter" class="form-control">
+            <option value="">All Error Types</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Hydraulic">Hydraulic</option>
+            <option value="Software">Software</option>
+            <option value="Safety">Safety</option>
+        </select>
+        
+        <select id="severityFilter" class="form-control">
+            <option value="">All Severities</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+        </select>
+        
+        <button id="clearFilters" class="btn btn-secondary">Clear</button>
+    </div>
+</div>
                     </div>
                 </div>
 
@@ -90,6 +92,10 @@
                                 <span class="code">E005</span>
                                 <span class="desc">Anti-Two Block Failure</span>
                             </button>
+                            <button onclick="loadErrorCode('E101')" class="quick-code-btn high">
+                                <span class="code">E101</span>
+                                <span class="desc">Cylinder Drift</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -97,13 +103,26 @@
                 <!-- Results Section -->
                 <div class="card">
                     <div class="card-header">
-                        <h3>📋 Search Results <span id="resultsCount"></span></h3>
+                        <h3>📋 Search Results</h3>
                     </div>
                     <div class="card-body">
                         <div id="searchResults" class="search-results">
                             <div class="empty-state">
                                 <p>🔍 Enter an error code or use the quick links above to get started</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Code Details Modal -->
+                <div id="errorCodeModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="modalTitle">Error Code Details</h3>
+                            <span class="close" onclick="closeModal()">&times;</span>
+                        </div>
+                        <div class="modal-body" id="modalBody">
+                            <!-- Content will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -117,6 +136,9 @@
                         <div class="db-actions">
                             <button onclick="initErrorCodeDatabase()" class="btn btn-success">
                                 📥 Load Sample Error Codes
+                            </button>
+                            <button onclick="viewAllErrorCodes()" class="btn btn-primary">
+                                👀 View All Error Codes
                             </button>
                             <span id="dbStatus" class="db-status">Ready</span>
                         </div>
