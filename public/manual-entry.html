@@ -7,66 +7,140 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Crane Error Finder</h1>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="reports.html" class="nav-link">Reports</a>
-                <a href="settings.html" class="nav-link">Settings</a>
-                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-logo">🏗️ CraneError Finder</h1>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="entry-mode.html" class="nav-link">Report Error</a>
+                    <a href="reports.html" class="nav-link">Reports</a>
+                    <a href="settings.html" class="nav-link">Settings</a>
+                    <button onclick="logout()" class="btn btn-secondary">Logout</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
-        <h1>Manual Error Report</h1>
-
-        <div class="form-container">
-            <form id="errorForm">
-                <div class="form-group">
-                    <label for="craneId">Crane ID:</label>
-                    <input type="text" id="craneId" name="craneId" required>
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>⌨️ Manual Error Report</h1>
+                    <p class="page-subtitle">Enter crane error details manually using the form below</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="errorType">Error Type:</label>
-                    <select id="errorType" name="errorType" required>
-                        <option value="">Select Error Type</option>
-                        <option value="Mechanical">Mechanical</option>
-                        <option value="Electrical">Electrical</option>
-                        <option value="Hydraulic">Hydraulic</option>
-                        <option value="Software">Software</option>
-                        <option value="Safety">Safety</option>
-                        <option value="Other">Other</option>
-                    </select>
+                <div class="form-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📝 Error Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="errorForm" class="error-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="craneId" class="form-label">
+                                            🏗️ Crane ID
+                                        </label>
+                                        <input type="text" id="craneId" name="craneId" class="form-control" 
+                                               placeholder="Enter crane identification number" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="errorType" class="form-label">
+                                            ⚠️ Error Type
+                                        </label>
+                                        <select id="errorType" name="errorType" class="form-control form-select" required>
+                                            <option value="">Select Error Type</option>
+                                            <option value="Mechanical">Mechanical</option>
+                                            <option value="Electrical">Electrical</option>
+                                            <option value="Hydraulic">Hydraulic</option>
+                                            <option value="Software">Software</option>
+                                            <option value="Safety">Safety</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="severity" class="form-label">
+                                            🚨 Severity Level
+                                        </label>
+                                        <select id="severity" name="severity" class="form-control form-select" required>
+                                            <option value="">Select Severity</option>
+                                            <option value="Low">Low - Minor issue</option>
+                                            <option value="Medium">Medium - Requires attention</option>
+                                            <option value="High">High - Urgent repair needed</option>
+                                            <option value="Critical">Critical - Immediate shutdown required</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="location" class="form-label">
+                                            📍 Location
+                                        </label>
+                                        <input type="text" id="location" name="location" class="form-control" 
+                                               placeholder="Enter crane location">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description" class="form-label">
+                                        📋 Error Description
+                                    </label>
+                                    <textarea id="description" name="description" class="form-control" 
+                                              placeholder="Provide detailed description of the error..." 
+                                              rows="4" required></textarea>
+                                    <div class="form-help">Be as detailed as possible to help with diagnosis</div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        📤 Submit Error Report
+                                    </button>
+                                    <a href="entry-mode.html" class="btn btn-secondary">
+                                        ↩️ Back to Options
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="severity">Severity:</label>
-                    <select id="severity" name="severity" required>
-                        <option value="">Select Severity</option>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                        <option value="Critical">Critical</option>
-                    </select>
+                <div class="form-guide">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>💡 Reporting Guidelines</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="guidelines">
+                                <div class="guideline-item">
+                                    <span class="guideline-icon">✅</span>
+                                    <div>
+                                        <strong>Be Specific</strong>
+                                        <p>Include exact error messages and symptoms</p>
+                                    </div>
+                                </div>
+                                <div class="guideline-item">
+                                    <span class="guideline-icon">✅</span>
+                                    <div>
+                                        <strong>Include Context</strong>
+                                        <p>Note what operations were being performed</p>
+                                    </div>
+                                </div>
+                                <div class="guideline-item">
+                                    <span class="guideline-icon">✅</span>
+                                    <div>
+                                        <strong>Set Proper Severity</strong>
+                                        <p>Choose the appropriate urgency level</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="location">Location:</label>
-                    <input type="text" id="location" name="location">
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Error Description:</label>
-                    <textarea id="description" name="description" required></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Report Error</button>
-            </form>
-        </div>
+            </div>
+        </main>
     </div>
 
     <script src="js/main.js"></script>
