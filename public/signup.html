@@ -7,25 +7,73 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="auth-container">
-    <div class="auth-form">
-        <h2>Create Account</h2>
-        <form id="signupForm">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+    <div class="auth-wrapper">
+        <div class="auth-background">
+            <div class="auth-graphics">
+                <div class="floating-crane">🏗️</div>
+                <div class="floating-tools">🛠️</div>
+                <div class="floating-chart">📈</div>
             </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-logo">🏗️ CraneError Finder</h1>
+                <p class="auth-subtitle">Create your account</p>
             </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required minlength="6">
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
-        </form>
-        <div class="auth-links">
-            <p>Already have an account? <a href="login.html">Login here</a></p>
+
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        👤 Username
+                    </label>
+                    <input type="text" id="username" name="username" class="form-control" 
+                           placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        📧 Email Address
+                    </label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        🔒 Password
+                    </label>
+                    <input type="password" id="password" name="password" class="form-control" 
+                           placeholder="Create a password" required minlength="6">
+                    <div class="password-strength">
+                        <div class="strength-bar"></div>
+                        <span class="strength-text">Password strength</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">
+                        ✅ Confirm Password
+                    </label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" 
+                           placeholder="Confirm your password" required>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms" class="form-check-label">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-auth">
+                    🚀 Create Account
+                </button>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="login.html" class="auth-link">Sign in here</a></p>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -34,8 +82,9 @@
             e.preventDefault();
             
             const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Creating Account...';
+            submitBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin-right: 10px;"></div> Creating account...';
             
             const formData = new FormData(this);
             const signupData = {
@@ -56,17 +105,40 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    window.location.href = 'dashboard.html';
+                    submitBtn.innerHTML = '✅ Account created! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
                 } else {
-                    alert(result.error || 'Signup failed');
+                    throw new Error(result.error || 'Signup failed');
                 }
             } catch (error) {
                 console.error('Signup error:', error);
-                alert('Signup failed. Please try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign Up';
+                submitBtn.innerHTML = '❌ ' + error.message;
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }, 2000);
             }
+        });
+
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.querySelector('.strength-bar');
+        const strengthText = document.querySelector('.strength-text');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            strengthBar.style.width = strength + '%';
+            strengthBar.style.background = strength < 50 ? '#e74c3c' : strength < 75 ? '#f39c12' : '#27ae60';
+            strengthText.textContent = strength < 50 ? 'Weak' : strength < 75 ? 'Medium' : 'Strong';
         });
     </script>
 </body>
